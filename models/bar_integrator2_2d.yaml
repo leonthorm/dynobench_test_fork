@@ -1,0 +1,9 @@
+dynamics: "bar_integrator2_2d"
+max_vel: 0.5
+max_acc: 2.0 # for quadrotor
+radius: 0.1
+size: [0.5, 0.25]
+shape: "sphere"
+# u_lb: [-9999, -9999, -9999, -9999]
+# u_ub: [9999, 9999, 9999, 9999]
+dt: 0.1

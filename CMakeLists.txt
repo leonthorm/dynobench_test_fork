@@ -40,7 +40,9 @@ add_library(
   ./src/car2.cpp
   ./src/integrator2_2d.cpp
   ./src/joint_robot.cpp
-  ./src/integrator1_2d.cpp)
+  ./src/integrator1_2d.cpp
+  ./src/bar_integrator2_2d.cpp
+  ./src/Bar_integrator2_2d_dynamics.cpp)
 
 add_library(dynobench::dynobench ALIAS dynobench)
 
