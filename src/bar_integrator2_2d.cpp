@@ -241,7 +241,7 @@ void Bar_integrator2_2d::step(Eigen::Ref<Eigen::VectorXd> xnext,
     fun(xnext.data(), params.l, x.data(), u.data(), dt);
   };
   apply_fun(calcStep_Bar_integrator2_2d);
-  ensure(xnext);
+  // ensure(xnext);
 }
 
 void Bar_integrator2_2d::stepDiff(Eigen::Ref<Eigen::MatrixXd> Fx,
