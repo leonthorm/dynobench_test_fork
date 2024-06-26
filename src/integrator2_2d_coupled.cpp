@@ -171,14 +171,18 @@ void Integrator2_2d_coupled::calcV(Eigen::Ref<Eigen::VectorXd> v,
                            const Eigen::Ref<const Eigen::VectorXd> &x,
                            const Eigen::Ref<const Eigen::VectorXd> &u) {
 
+  auto p1 = x.head<2>();
+  auto p2 = x.segment<2>(4);
+  double dist = (p1-p2).norm();
+  Eigen::Vector2d a_repulsive = alpha / ( dist * dist) * (p2 - p1) / dist;
   v(0) = x(2);
   v(1) = x(3);
-  v(2) = u(0);
-  v(3) = u(1);
+  v(2) = u(0) + a_repulsive(0);
+  v(3) = u(1) + a_repulsive(1);
   v(4) = x(4);
   v(5) = x(5);
-  v(6) = u(2);
-  v(7) = u(3);
+  v(6) = u(2) - a_repulsive(0);
+  v(7) = u(3) - a_repulsive(1);
 }
 
 // DYNAMICS

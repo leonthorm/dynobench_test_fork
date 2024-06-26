@@ -30,6 +30,7 @@
 #include "dynobench/car2.hpp"
 #include "dynobench/integrator1_2d.hpp"
 #include "dynobench/integrator2_2d.hpp"
+#include "dynobench/integrator2_2d_coupled.hpp"
 #include "dynobench/joint_robot.hpp"
 #include "dynobench/planar_rotor.hpp"
 #include "dynobench/planar_rotor_pole.hpp"
@@ -79,6 +80,8 @@ std::unique_ptr<Model_robot> robot_factory(const char *file,
     return std::make_unique<Model_quad2dpole>(file, p_lb, p_ub);
   } else if (dynamics == "integrator2_2d") {
     return std::make_unique<Integrator2_2d>(file, p_lb, p_ub);
+  } else if (dynamics == "integrator2_2d_coupled") {
+    return std::make_unique<Integrator2_2d_coupled>(file, p_lb, p_ub);
   } else if (dynamics == "integrator1_2d") {
     return std::make_unique<Integrator1_2d>(file, p_lb, p_ub);
   } else if (dynamics == "integrator2_3d") {
