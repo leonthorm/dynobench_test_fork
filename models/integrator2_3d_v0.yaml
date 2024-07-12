@@ -1,4 +1,3 @@
 dynamics: "integrator2_3d"
-shape: "sphere"
-radius: 0.05
+shape: "ellipsoid"
 # use default parameters

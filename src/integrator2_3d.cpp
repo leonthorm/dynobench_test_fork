@@ -6,6 +6,7 @@
 #include <cmath>
 #include <fcl/geometry/shape/box.h>
 #include <fcl/geometry/shape/sphere.h>
+#include <fcl/geometry/shape/ellipsoid.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -87,6 +88,9 @@ Integrator2_3d::Integrator2_3d(const Integrator2_3d_params &params,
   } else if (params.shape == "sphere") {
     collision_geometries.push_back(
         std::make_shared<fcl::Sphered>(params.radius));
+  } else if (params.shape == "ellipsoid") {
+    collision_geometries.push_back(
+        std::make_shared<fcl::Ellipsoidd>(params.radii));
   } else {
     ERROR_WITH_INFO("not implemented");
   }
