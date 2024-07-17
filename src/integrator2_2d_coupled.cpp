@@ -174,6 +174,8 @@ void Integrator2_2d_coupled::calcV(Eigen::Ref<Eigen::VectorXd> v,
   auto p1 = x.head<2>();
   auto p2 = x.segment<2>(4);
   double dist = (p1-p2).norm();
+  double alpha = 0.5;
+  
   Eigen::Vector2d a_repulsive = alpha / ( dist * dist) * (p2 - p1) / dist;
   v(0) = x(2);
   v(1) = x(3);
@@ -200,10 +202,37 @@ void Integrator2_2d_coupled::calcDiffV(Eigen::Ref<Eigen::MatrixXd> Jv_x,
   assert(Jv_u.rows() == 8);
   assert(Jv_u.cols() == 4);
 
+  double x1 = x(0);
+  double y1 = x(1);
+  double x2 = x(4);
+  double y2 = x(5);
+  double alpha = 0.5; // user-defined scaling factor
+
   Jv_x(0, 2) = 1;
   Jv_x(1, 3) = 1;
+
+  Jv_x(2, 0) = 0.5*(-3*x1 + 3*x2)*(-x1 + x2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) - 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
+  Jv_x(2, 1) = 0.5*(-x1 + x2)*(-3*y1 + 3*y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+  Jv_x(2, 4) = 0.5*(-x1 + x2)*(3*x1 - 3*x2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) + 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
+  Jv_x(2, 5) = 0.5*(-x1 + x2)*(3*y1 - 3*y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+
+  Jv_x(3, 0) = 0.5*(-3*x1 + 3*x2)*(-y1 + y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+  Jv_x(3, 1) = 0.5*(-3*y1 + 3*y2)*(-y1 + y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) - 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
+  Jv_x(3, 4) = 0.5*(3*x1 - 3*x2)*(-y1 + y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+  Jv_x(3, 5) = 0.5*(-y1 + y2)*(3*y1 - 3*y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) + 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
+
   Jv_x(4, 6) = 1;
   Jv_x(5, 7) = 1;
+
+  Jv_x(6, 0) = -0.5*(-3*x1 + 3*x2)*(-x1 + x2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) + 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
+  Jv_x(6, 1) = -0.5*(-x1 + x2)*(-3*y1 + 3*y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+  Jv_x(6, 4) = -0.5*(-x1 + x2)*(3*x1 - 3*x2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) - 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
+  Jv_x(6, 5) =  -0.5*(-x1 + x2)*(3*y1 - 3*y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+
+  Jv_x(7, 0) = -0.5*(-3*x1 + 3*x2)*(-y1 + y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+  Jv_x(7, 1) = -0.5*(-3*y1 + 3*y2)*(-y1 + y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) + 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
+  Jv_x(7, 4) = -0.5*(3*x1 - 3*x2)*(-y1 + y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2);
+  Jv_x(7, 5) = -0.5*(-y1 + y2)*(3*y1 - 3*y2)/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 5/2) - 0.5/pow((pow((x1-x2), 2) + pow((y1-y2), 2)), 3/2);
 
   Jv_u(2, 0) = 1;
   Jv_u(3, 1) = 1;
