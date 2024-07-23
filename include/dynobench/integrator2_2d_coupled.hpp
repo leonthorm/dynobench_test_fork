@@ -33,14 +33,14 @@ struct Integrator2_2d_coupled_params {
   double dt = .1;
 
   // Control and state bounds
-  double max_vel = 1;
-  double max_acc = 1;
+  double max_vel = 0.5;
+  double max_acc = 2.0;
 
   // filenam used to load the paratemers, it is set by read_from_yaml
   std::string filename = "";
 
   // shape for collision
-  std::string shape = "box";
+  std::string shape = "sphere";
   double radius = 0.1;
   // For computing distance between states
   Eigen::Vector2d distance_weights = Eigen::Vector2d(1, .5);
@@ -60,6 +60,9 @@ struct Integrator2_2d_coupled : public Model_robot {
 
   Integrator2_2d_coupled_params params;
   std::vector<fcl::CollisionObjectd *> part_objs_;  // *
+  std::vector<fcl::CollisionObjectd*> robot_objs_; // *
+  std::shared_ptr<fcl::BroadPhaseCollisionManagerd> col_mng_robots_;
+
   Integrator2_2d_coupled(const Integrator2_2d_coupled_params &params = Integrator2_2d_coupled_params(),
                  const Eigen::VectorXd &p_lb = Eigen::VectorXd(),
                  const Eigen::VectorXd &p_ub = Eigen::VectorXd());
@@ -69,12 +72,9 @@ struct Integrator2_2d_coupled : public Model_robot {
 
   virtual int number_of_so2() override { return 0; }
   virtual void indices_of_so2(int &k, std::vector<size_t> &vect) override {
-    k += 4;
+    k += 8;
   }
-  virtual int number_of_robot() override { return 1; }
-
-  // DISTANCE AND TIME (cost) - BOUNDS
-  // Distances and bounds are useuful in search/motion planning algorithms.
+  virtual int number_of_robot() override { return 2; }
 
   // distance between two states, using weights probided in params
   virtual double distance(const Eigen::Ref<const Eigen::VectorXd> &x,
@@ -98,7 +98,8 @@ struct Integrator2_2d_coupled : public Model_robot {
   virtual double
   lower_bound_time_pr(const Eigen::Ref<const Eigen::VectorXd> &x,
                       const Eigen::Ref<const Eigen::VectorXd> &y) override;
-
+                      
+  virtual void sample_uniform(Eigen::Ref<Eigen::VectorXd> x) override;
   // DYNAMICS
   //
   // Calc Velocity (xdot = f(x,u)).
