@@ -331,57 +331,8 @@ void Model_robot::collision_distance_time(
 
   auto &_env = time_varying_env.at(time);
   assert(_env);
-  if (_env && _env->size()) {
 
-    // compute all tansforms
-
-    transformation_collision_geometries(x, ts_data);
-    DYNO_CHECK_EQ(collision_geometries.size(), ts_data.size(), AT);
-    assert(collision_geometries.size() == ts_data.size());
-    DYNO_CHECK_EQ(collision_geometries.size(), col_outs.size(), AT);
-    assert(collision_geometries.size() == col_outs.size());
-
-    for (size_t i = 0; i < collision_geometries.size(); i++) {
-      fcl::DefaultDistanceData<double> distance_data;
-
-      fcl::Transform3d &result = ts_data[i];
-      assert(collision_geometries[i]);
-      fcl::CollisionObject co(collision_geometries[i]);
-
-      co.setTranslation(result.translation());
-      co.setRotation(result.rotation());
-      co.computeAABB();
-      distance_data.request.enable_signed_distance = true;
-      _env->distance(&co, &distance_data, fcl::DefaultDistanceFunction<double>);
-
-      auto &col_out = col_outs.at(i);
-
-      col_out.distance = distance_data.result.min_distance;
-      col_out.p1 = distance_data.result.nearest_points[0];
-      col_out.p2 = distance_data.result.nearest_points[1];
-    }
-
-    // decid eht
-
-    bool return_only_min = true;
-    if (return_only_min) {
-
-      auto it = std::min_element(
-          col_outs.begin(), col_outs.end(),
-          [](auto &a, auto &b) { return a.distance < b.distance; });
-
-      cout = *it; // copy only the min
-
-    } else {
-      ERROR_WITH_INFO("not implemented");
-    }
-  } else {
-    cout.distance = max__;
-    // struct CollisionOut {
-    //   double distance;
-    //   Eigen::Vector3d p1;
-    //   Eigen::Vector3d p2;
-  }
+  return __collision_distance(x, cout, _env);
 }
 
 void Model_robot::__collision_distance(

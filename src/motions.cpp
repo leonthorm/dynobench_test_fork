@@ -747,6 +747,8 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
   double ref_size = 1.;
 
   for (const auto &obstacles : problem.time_varying_obstacles) {
+
+    std::vector<fcl::CollisionObjectd *> _obs;
     for (const auto &obs : obstacles) {
       auto &obs_type = obs.type;
       auto &size = obs.size;
@@ -760,7 +762,7 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
         co->setTranslation(fcl::Vector3d(
             center(0), center(1), size.size() == 3 ? center(2) : ref_pos));
         co->computeAABB();
-        robot.obstacles.push_back(co);
+        _obs.push_back(co);
       } else if (obs_type == "sphere") {
         std::shared_ptr<fcl::CollisionGeometryd> geom;
         geom.reset(new fcl::Sphered(size(0)));
@@ -768,23 +770,24 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
         co->setTranslation(fcl::Vector3d(
             center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
         co->computeAABB();
-        robot.obstacles.push_back(co);
+        _obs.push_back(co);
       } else if (obs_type == "octomap") {
         OcTree *octTree = new OcTree(obs.octomap_file);
         fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
             std::shared_ptr<const octomap::OcTree>(octTree));
         auto tree_co = new fcl::CollisionObjectd(
             std::shared_ptr<fcl::CollisionGeometryd>(fcl_tree));
-        robot.obstacles.push_back(tree_co);
+        _obs.push_back(tree_co);
 
       } else {
         throw std::runtime_error("Unknown obstacle type! --" + obs_type);
       }
     }
+    robot.time_varying_obstacles.push_back(_obs);
     auto env = std::make_shared<fcl::DynamicAABBTreeCollisionManagerd>();
     // new fcl::DynamicAABBTreeCollisionManagerd();
     // robot.env.reset(new fcl::DynamicAABBTreeCollisionManagerd());
-    env->registerObjects(robot.obstacles);
+    env->registerObjects(robot.time_varying_obstacles.back());
     env->setup();
     robot.time_varying_env.push_back(env);
   }
