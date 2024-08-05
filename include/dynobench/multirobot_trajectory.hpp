@@ -1,3 +1,5 @@
+#pragma once
+
 #include "dynobench/motions.hpp"
 #include <vector>
 #include <bits/stdc++.h>
@@ -174,27 +176,18 @@ struct MultiRobotTrajectory {
 
     std::vector<int> _nxs(trajectories.size());
     std::vector<int> _nus(trajectories.size());
-
-    index = 0;
     std::transform(trajectories.begin(), trajectories.end(), _nxs.begin(),
-                   [&index, &cluster](const dynobench::Trajectory &traj) {
-                     if (cluster.find(index) != cluster.end()){
-                        return traj.states.at(0).size();
-                     }
-                     ++index;
+                   [](const dynobench::Trajectory &traj) {
+                     return traj.states.at(0).size();
                    });
 
-    index = 0;
     std::transform(trajectories.begin(), trajectories.end(), _nus.begin(),
-                   [&index, &cluster](const dynobench::Trajectory &traj) {
-                    if (cluster.find(index) != cluster.end()){
-                      return traj.actions.at(0).size();
-                    }
-                    ++index;
+                   [](const dynobench::Trajectory &traj) {
+                     return traj.actions.at(0).size();
                    });
 
     for (size_t i = 0; i < N_max; i++) {
-      Eigen::VectorXd x(nx);
+      Eigen::VectorXd x(nx); // the size of joint robots from cluster
       size_t next_index = 0;
       for (size_t j = 0; j < trajectories.size(); j++) {
         if (cluster.find(j) != cluster.end()){
@@ -213,11 +206,11 @@ struct MultiRobotTrajectory {
     for (size_t i = 0; i < N_max - 1; i++) {
       Eigen::VectorXd u(nu);
       size_t next_index = 0;
-
+      // size_t k = 0;
       for (size_t j = 0; j < trajectories.size(); j++) {
         if (cluster.find(j) != cluster.end()){
           Eigen::VectorXd uu(nu);
-          size_t __nu = _nus.at(j);
+          size_t __nu = _nus.at(j); // _nus has only info for cluster robots
           if (i >= trajectories.at(j).actions.size()) {
             uu = Eigen::VectorXd::Zero(__nu);
           } else {
@@ -225,6 +218,7 @@ struct MultiRobotTrajectory {
           }
           u.segment(next_index, __nu) = uu;
           next_index += __nu;
+          // ++k;
         }
       }
       joint_trajectory.actions.push_back(u);
@@ -272,61 +266,9 @@ inline MultiRobotTrajectory from_joint_to_indiv_trajectory(
   return multi_robot_traj;
 }
 
-// for moving obstacles
-inline MultiRobotTrajectory from_joint_to_indiv_trajectory_meta(
+void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
     const dynobench::Trajectory &traj, 
     MultiRobotTrajectory &init_guess_multi_robot,
-    const std::vector<int> &times) {
-
-  MultiRobotTrajectory multi_robot_traj = init_guess_multi_robot; // all robots
-
-  std::vector<int> nxs = init_guess_multi_robot.get_nxs();
-  std::vector<int> nus = init_guess_multi_robot.get_nus();
-
-  DYNO_CHECK_EQ(nxs.size(), nus.size(), "");
-  DYNO_CHECK_EQ(nxs.size(), times.size(), "");
-
-  size_t num_robots = nxs.size();
-
-  std::vector<size_t> nxs_accumulated(cluster.size());
-  std::vector<size_t> nus_accumulated(cluster.size());
-  size_t j = 0;
-  size_t id = 0; // keep track of the last robot in cluster
-  for (size_t i = 0; i < num_robots; i++) { // only for cluster
-    if(cluster.find(i) != cluster.end()){
-      if(j == 0){
-        nxs_accumulated.at(j) = 0;
-        nus_accumulated.at(j) = 0;
-        id = i;
-        ++j;
-      }
-      else{
-        nxs_accumulated.at(j) = nxs_accumulated.at(j - 1) + nxs.at(id);
-        nus_accumulated.at(j) = nus_accumulated.at(j - 1) + nus.at(id);
-        id = i;
-        ++j;
-      }
-    }
-  }
-
-  j = 0;
-  for (size_t i = 0; i < num_robots; i++) {
-    if(cluster.find(i) != cluster.end()){
-      dynobench::Trajectory traj_out;
-      for (int k = 0; k < times.at(i); k++) {
-        traj_out.states.push_back(
-            traj.states.at(k).segment(nxs_accumulated.at(j), nxs.at(i)));
-        if (k < times.at(i)-1)
-          traj_out.actions.push_back(
-              traj.actions.at(k).segment(nus_accumulated.at(j), nus.at(i)));
-      } 
-    
-    ++j; // keep track for cluster
-    multi_robot_traj.trajectories.at(i).states.resize(traj_out.states.size());
-    multi_robot_traj.trajectories.at(i).actions.resize(traj_out.actions.size());
-    multi_robot_traj.trajectories.at(i) = traj_out; // not sure if it is ok?
-    }
-  }
-  return multi_robot_traj;
-}
+    MultiRobotTrajectory &solution_multi_robot,
+    const std::vector<int> &times);
