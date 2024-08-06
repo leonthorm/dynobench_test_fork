@@ -5,7 +5,7 @@
 
 void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
-    const dynobench::Trajectory &traj, 
+    const dynobench::Trajectory &traj,
     MultiRobotTrajectory &init_guess_multi_robot,
     MultiRobotTrajectory &solution_multi_robot,
     const std::vector<int> &times) {
@@ -51,10 +51,10 @@ void from_joint_to_indiv_trajectory_meta(
         if (k < times.at(i)-1)
           traj_out.actions.push_back(
               traj.actions.at(k).segment(nus_accumulated.at(j), nus.at(i)));
-      } 
+      }
       solution_multi_robot.trajectories.at(i).states.resize(traj_out.states.size());
       solution_multi_robot.trajectories.at(i).actions.resize(traj_out.actions.size());
-      solution_multi_robot.trajectories.at(i) = traj_out; 
+      solution_multi_robot.trajectories.at(i) = traj_out;
       ++j; // keep track for cluster
     }
   }
