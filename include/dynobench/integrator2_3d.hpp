@@ -39,10 +39,10 @@ struct Integrator2_3d_params {
   double min_acc = -2.0;
   std::string filename = "";
   std::string shape = "sphere";
-  double radius = 0.1;
+  double radius = 0.05;
   Eigen::Vector2d distance_weights = Eigen::Vector2d(1, .5);
   Eigen::Vector2d size = Eigen::Vector2d(.5, .25);
-
+  Eigen::Vector3d radii = Eigen::Vector3d(.12, .12, .3); // from tro paper
   void read_from_yaml(const char *file);
   void read_from_yaml(YAML::Node &node);
 

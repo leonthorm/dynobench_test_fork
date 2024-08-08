@@ -20,7 +20,12 @@ struct Joint_robot : Model_robot {
 
   std::vector<fcl::CollisionObjectd *> part_objs_;  // *
   std::vector<fcl::CollisionObjectd *> robot_objs_; // *
+  std::vector<fcl::CollisionObjectd *> rf_part_objs_;  // * for the residual force
+  std::vector<fcl::CollisionObjectd *> rf_robot_objs_; // * for the residual force
   //
+  // params, that NEEDS to be relocated
+  bool residual_force = true; // when residual force is taken into account, and inter-robot collision with ellipsoid shape
+  Eigen::Vector3d radii = Eigen::Vector3d(.12, .12, .3); // from tro paper
 
   std::vector<int> nxs;
 
