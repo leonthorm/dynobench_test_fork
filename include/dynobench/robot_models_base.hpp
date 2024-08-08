@@ -682,11 +682,13 @@ struct Model_robot {
 
   std::vector<std::shared_ptr<fcl::CollisionGeometryd>> collision_geometries;
   std::shared_ptr<fcl::BroadPhaseCollisionManagerd> env;
-  std::vector<std::shared_ptr<fcl::BroadPhaseCollisionManagerd>>
-      time_varying_env;
-
   std::vector<fcl::CollisionObjectd *>
       obstacles; // this is owning, replace by unique_ptr
+
+  std::vector<std::shared_ptr<fcl::BroadPhaseCollisionManagerd>>
+      time_varying_env;
+  std::vector<std::vector<fcl::CollisionObjectd *>> time_varying_obstacles; // this is owing, todo: replace by unique_ptr
+
   // TODO: also store the geometry shapes.
 
   virtual void collision_distance(const Eigen::Ref<const Eigen::VectorXd> &x,
