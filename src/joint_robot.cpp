@@ -136,6 +136,11 @@ Joint_robot::Joint_robot(
   for (size_t i = 0; i < collision_geometries.size(); i++) {
     auto robot_part = new fcl::CollisionObject(collision_geometries[i]);
     part_objs_.push_back(robot_part);
+    if(residual_force){
+      std::shared_ptr<fcl::Ellipsoidd> ellipsoid = std::make_shared<fcl::Ellipsoidd>(radii);
+      auto rf_robot_part = new fcl::CollisionObjectd(ellipsoid);
+      rf_part_objs_.push_back(rf_robot_part);
+    }
   }
 }
 
@@ -257,6 +262,7 @@ void Joint_robot::collision_distance(const Eigen::Ref<const Eigen::VectorXd> &x,
                                      CollisionOut &cout) {
   double min_dist = std::numeric_limits<double>::max();
   bool check_parts = true;
+  
   if (env) {
     transformation_collision_geometries(x, ts_data);
     DYNO_CHECK_EQ(collision_geometries.size(), ts_data.size(), AT);
@@ -282,9 +288,22 @@ void Joint_robot::collision_distance(const Eigen::Ref<const Eigen::VectorXd> &x,
                     fcl::DefaultDistanceFunction<double>);
       min_dist = std::min(min_dist, distance_data.result.min_distance);
     }
-
+    // robot/robot checking
     if (check_parts) {
-      col_mng_robots_->registerObjects(robot_objs_);
+      if(residual_force){
+        rf_robot_objs_.clear();
+        for (size_t i = 0; i < ts_data.size(); i++) {
+          fcl::Transform3d &transform = ts_data[i];
+          auto rf_robot_co = rf_part_objs_[i];
+          rf_robot_co->setTranslation(transform.translation());
+          rf_robot_co->setRotation(transform.rotation());
+          rf_robot_co->computeAABB();
+          rf_robot_objs_.push_back(rf_robot_co);
+        }
+        col_mng_robots_->registerObjects(rf_robot_objs_);
+      }
+      else
+        col_mng_robots_->registerObjects(robot_objs_);
       fcl::DefaultDistanceData<double> inter_robot_distance_data;
       inter_robot_distance_data.request.enable_signed_distance = true;
 
