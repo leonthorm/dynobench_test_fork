@@ -269,6 +269,5 @@ inline MultiRobotTrajectory from_joint_to_indiv_trajectory(
 void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
     const dynobench::Trajectory &traj,
-    MultiRobotTrajectory &init_guess_multi_robot,
     MultiRobotTrajectory &solution_multi_robot,
     const std::vector<int> &times);

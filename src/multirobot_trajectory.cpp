@@ -5,15 +5,12 @@
 
 void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
-    const dynobench::Trajectory &traj,
-    MultiRobotTrajectory &init_guess_multi_robot,
+    const dynobench::Trajectory &traj, // solution for the cluster
     MultiRobotTrajectory &solution_multi_robot,
     const std::vector<int> &times) {
 
-  MultiRobotTrajectory multi_robot_traj;
-
-  std::vector<int> nxs = init_guess_multi_robot.get_nxs();
-  std::vector<int> nus = init_guess_multi_robot.get_nus();
+  std::vector<int> nxs = solution_multi_robot.get_nxs(); // set already
+  std::vector<int> nus = solution_multi_robot.get_nus();
 
   DYNO_CHECK_EQ(nxs.size(), nus.size(), "");
   DYNO_CHECK_EQ(nxs.size(), times.size(), "");
