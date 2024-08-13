@@ -49,9 +49,13 @@ void from_joint_to_indiv_trajectory_meta(
           traj_out.actions.push_back(
               traj.actions.at(k).segment(nus_accumulated.at(j), nus.at(i)));
       }
+      std::cout << "updating the solution for: " << i << std::endl;
+      std::cout << "states before: " << solution_multi_robot.trajectories.at(i).states.size() << std::endl;
       solution_multi_robot.trajectories.at(i).states.resize(traj_out.states.size());
       solution_multi_robot.trajectories.at(i).actions.resize(traj_out.actions.size());
       solution_multi_robot.trajectories.at(i) = traj_out;
+      std::cout << "states after: " << solution_multi_robot.trajectories.at(i).states.size() << std::endl;
+
       ++j; // keep track for cluster
     }
   }
