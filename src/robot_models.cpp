@@ -25,7 +25,9 @@
 #include "dynobench/motions.hpp"
 #include "dynobench/robot_models.hpp"
 
+#include "dynobench/DintegratorCables.hpp"
 #include "dynobench/acrobot.hpp"
+#include "dynobench/bar_integrator2_2d.hpp"
 #include "dynobench/car.hpp"
 #include "dynobench/car2.hpp"
 #include "dynobench/integrator1_2d.hpp"
@@ -36,8 +38,6 @@
 #include "dynobench/quadrotor.hpp"
 #include "dynobench/unicycle1.hpp"
 #include "dynobench/unicycle2.hpp"
-#include "dynobench/bar_integrator2_2d.hpp"
-#include "dynobench/DintegratorCables.hpp"
 
 // #define dynobench_models "../dynoplan/dynobench/models/"
 #include "dynobench/integrator1_2d.hpp"
@@ -82,7 +82,7 @@ std::unique_ptr<Model_robot> robot_factory(const char *file,
     return std::make_unique<Integrator1_2d>(file, p_lb, p_ub);
   } else if (dynamics == "bar_integrator2_2d") {
     return std::make_unique<Bar_integrator2_2d>(file, p_lb, p_ub);
-  }  else if (dynamics == "DintegratorCables") {
+  } else if (dynamics == "DintegratorCables") {
     return std::make_unique<DintegratorCables>(file, p_lb, p_ub);
   } else {
     ERROR_WITH_INFO("dynamics not implemented: " + dynamics);

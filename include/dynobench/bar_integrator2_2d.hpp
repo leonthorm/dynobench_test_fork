@@ -6,13 +6,12 @@
 
 namespace dynobench {
 
-
 struct Bar_integrator2_2d_params {
   Bar_integrator2_2d_params(const char *file) { read_from_yaml(file); }
   Bar_integrator2_2d_params() = default;
 
-  double max_vel = 1.; // m/s
-  double max_acc = 1.; // m/s^2
+  double max_vel = 1.;         // m/s
+  double max_acc = 1.;         // m/s^2
   double max_angular_vel = 2.; // rad/s
   double dt = .1;
 
@@ -21,20 +20,18 @@ struct Bar_integrator2_2d_params {
   Eigen::Vector4d u_ub;
   Eigen::Vector4d u_lb;
 
-  // for collision shape 
+  // for collision shape
   std::string shape = "box";
-  double l  = 0.5;
+  double l = 0.5;
   double radius = 0.1;
   Eigen::Vector2d size = Eigen::Vector2d(.5, .25);
-  
+
   // filename used to load the paratemers, it is set by read_from_yaml
   std::string filename = "";
-  
-  
+
   void read_from_yaml(YAML::Node &node);
   void read_from_yaml(const char *file);
-  
-  
+
   void write(std::ostream &out) {
     const std::string be = "";
     const std::string af = ": ";
@@ -51,25 +48,21 @@ struct Bar_integrator2_2d_params {
   }
 };
 
-
 struct Bar_integrator2_2d : Model_robot {
 
   virtual ~Bar_integrator2_2d() = default;
-  
+
   Bar_integrator2_2d_params params;
-  
+
   // Eigen::VectorXd state_weights;
   // Eigen::VectorXd state_ref;
 
-  std::vector<std::unique_ptr<fcl::CollisionObjectd>>
-      collision_objects; 
+  std::vector<std::unique_ptr<fcl::CollisionObjectd>> collision_objects;
   bool check_inter_r_col = true;
-    
 
   Eigen::VectorXd ff;
 
   std::shared_ptr<fcl::BroadPhaseCollisionManagerd> col_mng_robots_;
-
 
   Bar_integrator2_2d(const Bar_integrator2_2d &) = default;
 
@@ -82,7 +75,6 @@ struct Bar_integrator2_2d : Model_robot {
       const Bar_integrator2_2d_params &params = Bar_integrator2_2d_params(),
       const Eigen::VectorXd &p_lb = Eigen::VectorXd(),
       const Eigen::VectorXd &p_ub = Eigen::VectorXd());
-
 
   virtual void write_params(std::ostream &out) override { params.write(out); }
 
@@ -101,38 +93,32 @@ struct Bar_integrator2_2d : Model_robot {
   }
 
   void get_robot1_pos(const Eigen::Ref<const Eigen::VectorXd> &x,
-                       Eigen::Ref<Eigen::Vector2d> out)
-  {
+                      Eigen::Ref<Eigen::Vector2d> out) {
     Eigen::Vector2d payload_pos;
     get_payload_pos(x, payload_pos);
     double th;
     get_th(x, th);
 
-    out[0] = payload_pos[0] + (params.l/2)*cos(th); 
-    out[1] = payload_pos[1] + (params.l/2)*sin(th); 
+    out[0] = payload_pos[0] + (params.l / 2) * cos(th);
+    out[1] = payload_pos[1] + (params.l / 2) * sin(th);
   }
 
   void get_robot2_pos(const Eigen::Ref<const Eigen::VectorXd> &x,
-                       Eigen::Ref<Eigen::Vector2d> out)
-  {
+                      Eigen::Ref<Eigen::Vector2d> out) {
     Eigen::Vector2d payload_pos;
     get_payload_pos(x, payload_pos);
     double th;
     get_th(x, th);
 
-    out[0] = payload_pos[0] - (params.l/2)*cos(th); 
-    out[1] = payload_pos[1] - (params.l/2)*sin(th); 
+    out[0] = payload_pos[0] - (params.l / 2) * cos(th);
+    out[1] = payload_pos[1] - (params.l / 2) * sin(th);
   }
 
-
-
- void get_th(const Eigen::Ref<const Eigen::VectorXd> &x,
-                                  double &out) {
+  void get_th(const Eigen::Ref<const Eigen::VectorXd> &x, double &out) {
 
     out = x(2);
     wrap_angle(out);
   }
-
 
   virtual void calcV(Eigen::Ref<Eigen::VectorXd> f,
                      const Eigen::Ref<const Eigen::VectorXd> &x,
@@ -154,7 +140,6 @@ struct Bar_integrator2_2d : Model_robot {
                         const Eigen::Ref<const Eigen::VectorXd> &u,
                         double dt) override;
 
-
   // Collisions
   // This updates the position of the collisions shape(s) of the robot.
   // The collision distance/check  is implemented  in the base class.
@@ -163,9 +148,8 @@ struct Bar_integrator2_2d : Model_robot {
       const Eigen::Ref<const Eigen::VectorXd> &x,
       std::vector<Transform3d> &ts) override;
 
-virtual void collision_distance(const Eigen::Ref<const Eigen::VectorXd> &x,
+  virtual void collision_distance(const Eigen::Ref<const Eigen::VectorXd> &x,
                                   CollisionOut &cout) override;
-
 };
 
-}
+} // namespace dynobench

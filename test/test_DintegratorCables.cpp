@@ -1,10 +1,9 @@
 #include <boost/test/unit_test.hpp>
 
-#include "dynobench/motions.hpp"
 #include "dynobench/DintegratorCables.hpp"
+#include "dynobench/motions.hpp"
 
 #define base_path "../"
-
 
 using namespace dynobench;
 
@@ -13,10 +12,9 @@ BOOST_AUTO_TEST_CASE(t_DintegratorCables) {
   dynobench::DintegratorCables_params params;
   params.read_from_yaml(base_path "models/DintegratorCables.yaml");
   auto model = mk<dynobench::DintegratorCables>(params);
-
 }
 
-BOOST_AUTO_TEST_CASE(t_DintegratorCables_dynamics) { 
+BOOST_AUTO_TEST_CASE(t_DintegratorCables_dynamics) {
 
   dynobench::DintegratorCables_params params;
   params.read_from_yaml(base_path "models/DintegratorCables.yaml");
@@ -29,16 +27,15 @@ BOOST_AUTO_TEST_CASE(t_DintegratorCables_dynamics) {
 
   Eigen::VectorXd x_default(nx), u_default(nu);
   x_default.setZero();
-  // x_default << -1, 0, 1.57, -1.57, 0,0,0,0; 
+  // x_default << -1, 0, 1.57, -1.57, 0,0,0,0;
   std::map<std::string, std::vector<double>> info;
   // info = model->get_info(x_default);
-  
 
-  std::cout<< "params m0: " << model->params.m0 << std::endl;
-  std::cout<< "params m1: " << model->params.m1 << std::endl;
-  std::cout<< "params m2: " << model->params.m2 << std::endl;
-  std::cout<< "params l1: " << model->params.l1 << std::endl;
-  std::cout<< "params l2: " << model->params.l2 << std::endl;
+  std::cout << "params m0: " << model->params.m0 << std::endl;
+  std::cout << "params m1: " << model->params.m1 << std::endl;
+  std::cout << "params m2: " << model->params.m2 << std::endl;
+  std::cout << "params l1: " << model->params.l1 << std::endl;
+  std::cout << "params l2: " << model->params.l2 << std::endl;
   // Printing each element of the map
   // for (const auto& pair : info) {
   //     std::cout << pair.first << ": ";
@@ -52,22 +49,20 @@ BOOST_AUTO_TEST_CASE(t_DintegratorCables_dynamics) {
   // exit(3);
   u_default = model->u_0;
 
-  Eigen::VectorXd xrand(nx), urand(nu) , xrandnoise(nx) , urandnoise(nx);
-  xrand.setZero(); 
-  xrand << 0.791045,-3.44113e-09,-0.156666,3.09972,0.33758,1.73199,-4.1146,2.57581;
+  Eigen::VectorXd xrand(nx), urand(nu), xrandnoise(nx), urandnoise(nx);
+  xrand.setZero();
+  xrand << 0.791045, -3.44113e-09, -0.156666, 3.09972, 0.33758, 1.73199,
+      -4.1146, 2.57581;
   urand << 10.0, 2.0, 10.0, 2.0;
-
 
   xrandnoise = xrand + 0.01 * Eigen::VectorXd::Random(nx);
   model->ensure(xrandnoise);
   urandnoise = urand + 0.01 * Eigen::VectorXd::Random(nu);
 
-
   Eigen::MatrixXd Jx_diff(nx, nx), Ju_diff(nx, nu), Jx(nx, nx), Ju(nx, nu);
   Eigen::MatrixXd Sx_diff(nx, nx), Su_diff(nx, nu), Sx(nx, nx), Su(nx, nu);
 
   std::vector<std::pair<Eigen::VectorXd, Eigen::VectorXd>> xu_s;
-
 
   Eigen::VectorXd ff(nx);
   ff.setZero();
@@ -93,9 +88,8 @@ BOOST_AUTO_TEST_CASE(t_DintegratorCables_dynamics) {
     model->stepDiff(Sx, Su, x0, u0, dt);
     model->calcV(ff, x0, u0);
 
-    std::cout << "ff: \n"<< ff << "\n\n" << std::endl;
-    
-    
+    std::cout << "ff: \n" << ff << "\n\n" << std::endl;
+
     finite_diff_jac(
         [&](const Eigen::VectorXd &x, Eigen::Ref<Eigen::VectorXd> y) {
           model->calcV(y, x, u0);
@@ -128,12 +122,11 @@ BOOST_AUTO_TEST_CASE(t_DintegratorCables_dynamics) {
     std::cout << "report Ju " << std::endl;
     approx_equal_report(Ju, Ju_diff);
 
-
     std::cout << "Sx: \n" << Sx << std::endl;
     std::cout << "Sx_diff: \n" << Sx_diff << std::endl;
 
-     std::cout << "-----------\n"
-               << "report Sx " << std::endl;
+    std::cout << "-----------\n"
+              << "report Sx " << std::endl;
     approx_equal_report(Sx, Sx_diff);
 
     std::cout << "Su: \n" << Su << std::endl;
