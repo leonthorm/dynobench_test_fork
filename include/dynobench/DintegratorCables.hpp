@@ -12,12 +12,12 @@ struct DintegratorCables_params {
 
   double col_size_robot = .1;    // radius
   double col_size_payload = .01; // radius
-  double max_vel = 1.; // m/s
-  double max_acc = 1.; // m/s^2
-  double max_angular_vel = 2.; // rad/s
+  double max_vel = 0.5; // m/s
+  double max_acc = 2.; // m/s^2
+  double max_angular_vel = 0.5; // rad/s
   double m0 = 0.01; // kg
-  double m1 = 0.034; // kg
-  double m2 = 0.034; // kg
+  double m1 = 1.0; // kg
+  double m2 = 1.0; // kg
   double l1 = 0.5;
   double l2 = 0.5;
   double dt = .1;
@@ -68,6 +68,7 @@ struct DintegratorCables : Model_robot {
   Eigen::VectorXd ff;
 
   std::shared_ptr<fcl::BroadPhaseCollisionManagerd> col_mng_robots_;
+  std::vector<fcl::CollisionObjectd *> collision_objects_ptrs;
 
 
   DintegratorCables(const DintegratorCables &) = default;
@@ -153,14 +154,14 @@ struct DintegratorCables : Model_robot {
                                   double &out) {
 
     out = x(2);
-    // wrap_angle(out);
+    out = wrap_angle(out);
   }
 
  void get_th2(const Eigen::Ref<const Eigen::VectorXd> &x,
                                    double &out) {
               
     out = x(3);
-    // wrap_angle(out);
+    out = wrap_angle(out);
   }
 
   virtual void calcV(Eigen::Ref<Eigen::VectorXd> f,
@@ -187,6 +188,8 @@ struct DintegratorCables : Model_robot {
   // Collisions
   // This updates the position of the collisions shape(s) of the robot.
   // The collision distance/check  is implemented  in the base class.
+ virtual double distance(const Eigen::Ref<const Eigen::VectorXd> &x,
+                          const Eigen::Ref<const Eigen::VectorXd> &y) override;
 
   virtual void transformation_collision_geometries(
       const Eigen::Ref<const Eigen::VectorXd> &x,
