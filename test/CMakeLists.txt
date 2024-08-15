@@ -25,8 +25,10 @@ cmake_print_variables(${Boost_LIBRARIES})
 # ${CMAKE_BINARY_DIR}/googletest-build EXCLUDE_FROM_ALL) endif()
 
 # Now simply link against gtest as needed. Eg
-add_executable(test_dynobench test_hello_world.cpp test_base.cpp
-                              test_models.cpp)
+add_executable(test_dynobench 
+                        test_hello_world.cpp test_base.cpp
+                            #   test_models.cpp 
+                              test_DintegratorCables.cpp)
 
 add_executable(test_check_trajectory test_check_trajectory.cpp)
 
