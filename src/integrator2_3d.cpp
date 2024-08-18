@@ -73,7 +73,7 @@ Integrator2_3d::Integrator2_3d(const Integrator2_3d_params &params,
   x_ub << max__, max__, max__, params.max_vel, params.max_vel, params.max_vel;
 
   u_weight << 1., 1., 1.;
-  x_weightb << 100, 100, 100, 100, 100, 100;
+  x_weightb << 400, 400, 400, 400, 400, 400; // 100, 100, 100, 100, 100, 100;
   // add bounds on position if provided
   if (p_lb.size() && p_ub.size()) {
     set_position_lb(p_lb);
