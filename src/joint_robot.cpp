@@ -159,10 +159,12 @@ void Joint_robot::calcV(Eigen::Ref<Eigen::VectorXd> v,
     size_v = size_nx;
     robot->calcV(v.segment(k_v, size_nx), x.segment(k_x, size_nx),
                  u.segment(k_u, size_nu));
+    
     k_v += size_nx;
     k_x += size_nx;
     k_u += size_nu;
   }
+  // add the NN and change only v, and input the state of all neighbors
 }
 
 void Joint_robot::calcDiffV(Eigen::Ref<Eigen::MatrixXd> Jv_x,
@@ -190,6 +192,7 @@ void Joint_robot::calcDiffV(Eigen::Ref<Eigen::MatrixXd> Jv_x,
     k_x += size_nx;
     k_u += size_nu;
   }
+  // take Jacobian/gradient of the NN (use finite differences (gradient/Jacobian) - Quim's)
 }
 
 double Joint_robot::distance(const Eigen::Ref<const Eigen::VectorXd> &x,
@@ -259,6 +262,10 @@ void Joint_robot::__collision_distance(
   double min_dist = std::numeric_limits<double>::max();
   bool check_parts = true;
   if (_env) {
+    std::vector<fcl::CollisionObjectd*> objects;
+    // Retrieve the collision objects managed by the BroadPhaseCollisionManagerd
+    _env->getObjects(objects);
+    std::cout << "size of collision objects: " << objects.size() << std::endl;
     transformation_collision_geometries(x, ts_data);
     DYNO_CHECK_EQ(collision_geometries.size(), ts_data.size(), AT);
     assert(collision_geometries.size() == ts_data.size());
@@ -281,6 +288,8 @@ void Joint_robot::__collision_distance(
       distance_data.request.enable_signed_distance = true;
       _env->distance(robot_co, &distance_data,
                      fcl::DefaultDistanceFunction<double>);
+      if(distance_data.result.min_distance < 0)
+        std::cout << "collision with the env, robot " << i << std::endl;
       min_dist = std::min(min_dist, distance_data.result.min_distance);
     }
 
@@ -291,6 +300,9 @@ void Joint_robot::__collision_distance(
 
       col_mng_robots_->distance(&inter_robot_distance_data,
                                 fcl::DefaultDistanceFunction<double>);
+      if(inter_robot_distance_data.result.min_distance < 0)
+        std::cout << "inter-robot collision" << std::endl;
+
       min_dist =
           std::min(min_dist, inter_robot_distance_data.result.min_distance);
     }

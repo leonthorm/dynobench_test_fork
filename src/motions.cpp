@@ -266,12 +266,37 @@ void Problem::read_from_yaml(const YAML::Node &env) {
   p_ub = Eigen::Map<Eigen::VectorXd>(&max_.at(0), max_.size());
 
   // check if the environment has moving obstacles
-  //
   bool contains_moving_obstacles = false;
   if (env["environment"]["moving_obstacles"]) {
-
     contains_moving_obstacles = true;
-    for (const auto &obstacles : env["environment"]["moving_obstacles"]) {
+    // check if the environment has static obstacles
+    std::vector<Obstacle> static_obstacles;
+    if (env["environment"]["static_obstacles"]){
+      // read static obstacles
+      for (const auto &obs : env["environment"]["static_obstacles"]) {
+        std::vector<double> size_ = obs["size"].as<std::vector<double>>();
+        Vxd size = Vxd::Map(size_.data(), size_.size());
+        auto obs_type = obs["type"].as<std::string>();
+        std::string octomap_filename;
+        if (obs_type == "octomap") {
+          octomap_filename = obs["octomap_file"].as<std::string>();
+        }
+
+        std::vector<double> center_ = obs["center"].as<std::vector<double>>();
+        Vxd center = Vxd::Map(center_.data(), center_.size());
+
+        static_obstacles.push_back(Obstacle{.type = obs_type,
+                                      .octomap_file = octomap_filename,
+                                      .size = size,
+                                      .center = center});
+        // for initial guess, static obstacles for the meta-robot optimization
+        obstacles.push_back(Obstacle{.type = obs_type,
+                                    .octomap_file = octomap_filename,
+                                    .size = size,
+                                    .center = center});
+      }
+    }
+    for (const auto &obstacles : env["environment"]["moving_obstacles"]) { // for each timestamp
 
       std::vector<Obstacle> _obstacles;
       for (const auto &obs : obstacles ) {
@@ -292,14 +317,16 @@ void Problem::read_from_yaml(const YAML::Node &env) {
                                       .size = size,
                                       .center = center});
       }
+      _obstacles.insert(_obstacles.end(), static_obstacles.begin(), static_obstacles.end());
       time_varying_obstacles.push_back(_obstacles);
     }
   }
 
   if (contains_moving_obstacles) {
     std::cout << "contains moving obstacles" << std::endl;
-    std::cout << "default obstacles is not parsed!" << std::endl;
-  } else {
+    // std::cout << "default obstacles is not parsed!" << std::endl;
+  } 
+  else {
     for (const auto &obs : env["environment"]["obstacles"]) {
       std::vector<double> size_ = obs["size"].as<std::vector<double>>();
       Vxd size = Vxd::Map(size_.data(), size_.size());
@@ -314,9 +341,9 @@ void Problem::read_from_yaml(const YAML::Node &env) {
       Vxd center = Vxd::Map(center_.data(), center_.size());
 
       obstacles.push_back(Obstacle{.type = obs_type,
-                                   .octomap_file = octomap_filename,
-                                   .size = size,
-                                   .center = center});
+                                    .octomap_file = octomap_filename,
+                                    .size = size,
+                                    .center = center});
     }
   }
 
@@ -472,6 +499,7 @@ double check_cols(std::shared_ptr<Model_robot> model_robot,
   for (size_t i = 0; i < xs.size(); i++) {
     auto &x = xs.at(i);
     model_robot->collision_distance(x, out);
+    std::cout << "out.distance: " << out.distance << " at time: " << i << std::endl;
     if (out.distance < 0) {
       std::cout << "Warning -- col at: " << STR_V(x) << " time:" << i
                 << " distance: " << out.distance << std::endl;
@@ -745,7 +773,45 @@ void load_env(Model_robot &robot, const Problem &problem) {
 void load_time_varying_env(Model_robot &robot, const Problem &problem) {
   double ref_pos = 0;
   double ref_size = 1.;
+  // get static obstacles
+  for (const auto &obs : problem.obstacles) {
+    auto &obs_type = obs.type;
+    auto &size = obs.size;
+    auto &center = obs.center;
 
+    if (obs_type == "box") {
+      std::shared_ptr<fcl::CollisionGeometryd> geom;
+      geom.reset(new fcl::Boxd(size(0), size(1),
+                               size.size() == 3 ? size(2) : ref_size));
+      auto co = new fcl::CollisionObjectd(geom);
+      co->setTranslation(fcl::Vector3d(center(0), center(1),
+                                       size.size() == 3 ? center(2) : ref_pos));
+      co->computeAABB();
+      robot.obstacles.push_back(co);
+    } else if (obs_type == "sphere") {
+      std::shared_ptr<fcl::CollisionGeometryd> geom;
+      geom.reset(new fcl::Sphered(size(0)));
+      auto co = new fcl::CollisionObjectd(geom);
+      co->setTranslation(fcl::Vector3d(
+          center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
+      co->computeAABB();
+      robot.obstacles.push_back(co);
+    } else if (obs_type == "octomap") {
+      OcTree *octTree = new OcTree(obs.octomap_file);
+      fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
+          std::shared_ptr<const octomap::OcTree>(octTree));
+      auto tree_co = new fcl::CollisionObjectd(
+          std::shared_ptr<fcl::CollisionGeometryd>(fcl_tree));
+      robot.obstacles.push_back(tree_co);
+
+    } else {
+      throw std::runtime_error("Unknown obstacle type! --" + obs_type);
+    }
+  }
+  robot.env.reset(new fcl::DynamicAABBTreeCollisionManagerd());
+  robot.env->registerObjects(robot.obstacles);
+  robot.env->setup();
+  // moving obstacles env is stored, and taken per time anyway
   for (const auto &obstacles : problem.time_varying_obstacles) {
 
     std::vector<fcl::CollisionObjectd *> _obs;
