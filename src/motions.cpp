@@ -744,9 +744,6 @@ void load_env(Model_robot &robot, const Problem &problem) {
 void load_time_varying_env(Model_robot &robot, const Problem &problem) {
   double ref_pos = 0;
   double ref_size = 1.;
-  robot.env.reset(new fcl::DynamicAABBTreeCollisionManagerd());
-  robot.env->registerObjects(robot.obstacles);
-  robot.env->setup();
   // moving obstacles env is stored, and taken per time anyway
   for (const auto &obstacles : problem.time_varying_obstacles) {
 
