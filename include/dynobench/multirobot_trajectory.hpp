@@ -24,6 +24,14 @@ struct MultiRobotTrajectory {
     return nxs;
   }
 
+  double get_cost() {
+    double sum = 0;
+    for (auto &traj : trajectories) {
+      sum += traj.cost;
+    }
+    return sum;
+  }
+
   std::vector<int> get_nus() {
     std::vector<int> nus;
     for (auto &traj : trajectories) {
