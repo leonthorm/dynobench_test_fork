@@ -263,9 +263,6 @@ void Joint_robot::__collision_distance(
   bool check_parts = true;
   if (_env) {
     std::vector<fcl::CollisionObjectd*> objects;
-    // Retrieve the collision objects managed by the BroadPhaseCollisionManagerd
-    _env->getObjects(objects);
-    std::cout << "size of collision objects: " << objects.size() << std::endl;
     transformation_collision_geometries(x, ts_data);
     DYNO_CHECK_EQ(collision_geometries.size(), ts_data.size(), AT);
     assert(collision_geometries.size() == ts_data.size());
