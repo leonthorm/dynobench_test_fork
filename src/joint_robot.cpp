@@ -281,6 +281,8 @@ void Joint_robot::__collision_distance(
       distance_data.request.enable_signed_distance = true;
       _env->distance(robot_co, &distance_data,
                      fcl::DefaultDistanceFunction<double>);
+      // if(distance_data.result.min_distance < 0)
+        // std::cout << "collision with the env, robot " << i << std::endl;
       min_dist = std::min(min_dist, distance_data.result.min_distance);
     }
 

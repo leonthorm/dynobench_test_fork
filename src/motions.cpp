@@ -298,7 +298,6 @@ void Problem::read_from_yaml(const YAML::Node &env) {
 
   if (contains_moving_obstacles) {
     std::cout << "contains moving obstacles" << std::endl;
-    std::cout << "default obstacles is not parsed!" << std::endl;
   } else {
     for (const auto &obs : env["environment"]["obstacles"]) {
       std::vector<double> size_ = obs["size"].as<std::vector<double>>();
