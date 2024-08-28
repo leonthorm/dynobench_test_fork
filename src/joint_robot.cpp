@@ -298,6 +298,7 @@ void Joint_robot::__collision_distance(
     }
     cout.distance = min_dist;
   } else {
+    std::cout << "no _env in collision_distance, max" << std::endl;
     cout.distance = max__;
   }
 }
