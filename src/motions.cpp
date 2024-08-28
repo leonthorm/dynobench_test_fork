@@ -766,43 +766,43 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
   double ref_size = 1.;
 
   // static obstacles
-  for (const auto &obs : problem.obstacles) {
-    auto &obs_type = obs.type;
-    auto &size = obs.size;
-    auto &center = obs.center;
+  // for (const auto &obs : problem.obstacles) {
+  //   auto &obs_type = obs.type;
+  //   auto &size = obs.size;
+  //   auto &center = obs.center;
 
-    if (obs_type == "box") {
-      std::shared_ptr<fcl::CollisionGeometryd> geom;
-      geom.reset(new fcl::Boxd(size(0), size(1),
-                               size.size() == 3 ? size(2) : ref_size));
-      auto co = new fcl::CollisionObjectd(geom);
-      co->setTranslation(fcl::Vector3d(center(0), center(1),
-                                       size.size() == 3 ? center(2) : ref_pos));
-      co->computeAABB();
-      robot.obstacles.push_back(co);
-    } else if (obs_type == "sphere") {
-      std::shared_ptr<fcl::CollisionGeometryd> geom;
-      geom.reset(new fcl::Sphered(size(0)));
-      auto co = new fcl::CollisionObjectd(geom);
-      co->setTranslation(fcl::Vector3d(
-          center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
-      co->computeAABB();
-      robot.obstacles.push_back(co);
-    } else if (obs_type == "octomap") {
-      OcTree *octTree = new OcTree(obs.octomap_file);
-      fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
-          std::shared_ptr<const octomap::OcTree>(octTree));
-      auto tree_co = new fcl::CollisionObjectd(
-          std::shared_ptr<fcl::CollisionGeometryd>(fcl_tree));
-      robot.obstacles.push_back(tree_co);
+  //   if (obs_type == "box") {
+  //     std::shared_ptr<fcl::CollisionGeometryd> geom;
+  //     geom.reset(new fcl::Boxd(size(0), size(1),
+  //                              size.size() == 3 ? size(2) : ref_size));
+  //     auto co = new fcl::CollisionObjectd(geom);
+  //     co->setTranslation(fcl::Vector3d(center(0), center(1),
+  //                                      size.size() == 3 ? center(2) : ref_pos));
+  //     co->computeAABB();
+  //     robot.obstacles.push_back(co);
+  //   } else if (obs_type == "sphere") {
+  //     std::shared_ptr<fcl::CollisionGeometryd> geom;
+  //     geom.reset(new fcl::Sphered(size(0)));
+  //     auto co = new fcl::CollisionObjectd(geom);
+  //     co->setTranslation(fcl::Vector3d(
+  //         center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
+  //     co->computeAABB();
+  //     robot.obstacles.push_back(co);
+  //   } else if (obs_type == "octomap") {
+  //     OcTree *octTree = new OcTree(obs.octomap_file);
+  //     fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
+  //         std::shared_ptr<const octomap::OcTree>(octTree));
+  //     auto tree_co = new fcl::CollisionObjectd(
+  //         std::shared_ptr<fcl::CollisionGeometryd>(fcl_tree));
+  //     robot.obstacles.push_back(tree_co);
 
-    } else {
-      throw std::runtime_error("Unknown obstacle type! --" + obs_type);
-    }
-  }
-  robot.env.reset(new fcl::DynamicAABBTreeCollisionManagerd());
-  robot.env->registerObjects(robot.obstacles);
-  robot.env->setup();
+  //   } else {
+  //     throw std::runtime_error("Unknown obstacle type! --" + obs_type);
+  //   }
+  // }
+  // robot.env.reset(new fcl::DynamicAABBTreeCollisionManagerd());
+  // robot.env->registerObjects(robot.obstacles);
+  // robot.env->setup();
   // moving obstacles
   for (const auto &obstacles : problem.time_varying_obstacles) {
 
