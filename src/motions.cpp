@@ -266,8 +266,8 @@ void Problem::read_from_yaml(const YAML::Node &env) {
   p_ub = Eigen::Map<Eigen::VectorXd>(&max_.at(0), max_.size());
 
   // parse static obstacles anyway
-  if (env["environment"]["static_obstacles"]){
-    for (const auto &obs : env["environment"]["static_obstacles"] ) {
+  if (env["environment"]["obstacles"]){
+    for (const auto &obs : env["environment"]["obstacles"] ) {
       std::vector<double> size_ = obs["size"].as<std::vector<double>>();
       Vxd size = Vxd::Map(size_.data(), size_.size());
       auto obs_type = obs["type"].as<std::string>();
@@ -289,8 +289,9 @@ void Problem::read_from_yaml(const YAML::Node &env) {
   // check if the environment has moving obstacles
   bool contains_moving_obstacles = false;
   if (env["environment"]["moving_obstacles"]) {
-
     contains_moving_obstacles = true;
+    std::cout << "contains moving obstacles" << std::endl;
+
     for (const auto &obstacles : env["environment"]["moving_obstacles"]) {
 
       std::vector<Obstacle> _obstacles;
@@ -313,28 +314,6 @@ void Problem::read_from_yaml(const YAML::Node &env) {
                                       .center = center});
       }
       time_varying_obstacles.push_back(_obstacles);
-    }
-  }
-  if (contains_moving_obstacles) {
-    std::cout << "contains moving obstacles" << std::endl;
-  } else {
-    for (const auto &obs : env["environment"]["obstacles"]) {
-      std::vector<double> size_ = obs["size"].as<std::vector<double>>();
-      Vxd size = Vxd::Map(size_.data(), size_.size());
-
-      auto obs_type = obs["type"].as<std::string>();
-      std::string octomap_filename;
-      if (obs_type == "octomap") {
-        octomap_filename = obs["octomap_file"].as<std::string>();
-      }
-
-      std::vector<double> center_ = obs["center"].as<std::vector<double>>();
-      Vxd center = Vxd::Map(center_.data(), center_.size());
-
-      obstacles.push_back(Obstacle{.type = obs_type,
-                                   .octomap_file = octomap_filename,
-                                   .size = size,
-                                   .center = center});
     }
   }
 
@@ -770,7 +749,7 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
     auto &obs_type = obs.type;
     auto &size = obs.size;
     auto &center = obs.center;
-//
+
     if (obs_type == "box") {
       std::shared_ptr<fcl::CollisionGeometryd> geom;
       geom.reset(new fcl::Boxd(size(0), size(1),
