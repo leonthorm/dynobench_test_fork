@@ -770,7 +770,7 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
     auto &obs_type = obs.type;
     auto &size = obs.size;
     auto &center = obs.center;
-// 
+//
     if (obs_type == "box") {
       std::shared_ptr<fcl::CollisionGeometryd> geom;
       geom.reset(new fcl::Boxd(size(0), size(1),
@@ -795,7 +795,7 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
       auto tree_co = new fcl::CollisionObjectd(
           std::shared_ptr<fcl::CollisionGeometryd>(fcl_tree));
       robot.obstacles.push_back(tree_co);
-// 
+//
     } else {
       throw std::runtime_error("Unknown obstacle type! --" + obs_type);
     }
