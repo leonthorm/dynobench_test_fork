@@ -5,8 +5,7 @@
 #include <fcl/geometry/shape/box.h>
 #include <fcl/geometry/shape/capsule.h>
 #include <fcl/geometry/shape/sphere.h>
-// #include "quadrotor_payload_dynamics_autogen_n3_p.hpp" // @KHALED TODO (e.g.
-// n=2, point mass)
+
 
 namespace dynobench {
 
@@ -71,7 +70,7 @@ DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
   u_weight.setConstant(0.7);
 
   x_weightb = Vxd::Ones(nx);
-  x_weightb.setConstant(10.);
+  x_weightb.setConstant(100.);
 
   // state_weights = Vxd::Ones(nx);
   // state_ref = Vxd::Ones(nx);
@@ -120,7 +119,9 @@ DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
   col_outs.resize(2);
 
   for (auto &c : collision_geometries) {
-    collision_objects.emplace_back(std::make_unique<fcl::CollisionObjectd>(c));
+    // collision_objects.emplace_back(std::make_unique<fcl::CollisionObjectd>(c));
+    auto robot_part = new fcl::CollisionObject(c);
+    collision_objects.push_back(robot_part);
   }
   col_mng_robots_ = std::make_shared<fcl::DynamicAABBTreeCollisionManagerd>();
   col_mng_robots_->setup();
@@ -183,24 +184,27 @@ void DintegratorCables::collision_distance(
 
   if (check_inner) {
     // inner robots
+    collision_objects_ptrs.clear();
 
     transformation_collision_geometries(x, ts_data);
     // Update the collision objects
     for (size_t i = 0; i < collision_geometries.size(); i++) {
       fcl::Transform3d &result = ts_data[i];
-      assert(collision_objects.at(i));
-      auto &co = *collision_objects.at(i);
-      co.setTranslation(result.translation());
-      co.setRotation(result.rotation());
-      co.computeAABB();
+      auto co = collision_objects[i];
+      // assert(collision_objects.at(i));
+      // auto &co = *collision_objects.at(i);
+      co->setTranslation(result.translation());
+      co->setRotation(result.rotation());
+      co->computeAABB();
+      collision_objects_ptrs.push_back(co);
     }
 
     // std::vector<fcl::CollisionObjectd *> collision_objects_ptrs;
-    collision_objects_ptrs.clear();
-    collision_objects_ptrs.reserve(collision_objects.size());
-    std::transform(collision_objects.begin(), collision_objects.end(),
-                   std::back_inserter(collision_objects_ptrs),
-                   [](auto &c) { return c.get(); });
+    // collision_objects_ptrs.clear();
+    // collision_objects_ptrs.reserve(collision_objects.size());
+    // std::transform(collision_objects.begin(), collision_objects.end(),
+    //                std::back_inserter(collision_objects_ptrs),
+    //                [](auto &c) { return c.get(); });
 
     col_mng_robots_->clear();
     col_mng_robots_->registerObjects(collision_objects_ptrs);
@@ -246,9 +250,9 @@ double DintegratorCables::distance(const Eigen::Ref<const Eigen::VectorXd> &x,
   assert(x[3] <= M_PI && x[3] >= -M_PI);
 
   Eigen::VectorXd diff(x.size());
-  Eigen::VectorXd dist_weights(x.size());
+  Eigen::VectorXd dist_weights(5);
   dist_weights.setOnes();
-  dist_weights.segment(4, 2).setConstant(0.001);
+  // dist_weights.segment(4, 2).setConstant(0.001);
   Eigen::VectorXd raw_d(5);
   raw_d << (x.head<2>() - y.head<2>()).norm(), so2_distance(x(2), y(2)),
       so2_distance(x(3), y(3)), (x.segment<2>(4) - y.segment<2>(4)).norm(),

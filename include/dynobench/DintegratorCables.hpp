@@ -61,7 +61,9 @@ struct DintegratorCables : Model_robot {
   // Eigen::VectorXd state_weights;
   // Eigen::VectorXd state_ref;
 
-  std::vector<std::unique_ptr<fcl::CollisionObjectd>> collision_objects;
+  // std::vector<std::unique_ptr<fcl::CollisionObjectd>> collision_objects; 
+  std::vector<fcl::CollisionObjectd *> collision_objects; 
+  
   bool check_inner = true;
 
   Eigen::VectorXd ff;
