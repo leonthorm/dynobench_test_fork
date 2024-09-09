@@ -24,6 +24,14 @@ struct MultiRobotTrajectory {
     return nxs;
   }
 
+  double get_cost() {
+    double sum = 0;
+    for (auto &traj : trajectories) {
+      sum += traj.cost;
+    }
+    return sum;
+  }
+
   std::vector<int> get_nus() {
     std::vector<int> nus;
     for (auto &traj : trajectories) {
@@ -269,6 +277,5 @@ inline MultiRobotTrajectory from_joint_to_indiv_trajectory(
 void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
     const dynobench::Trajectory &traj,
-    MultiRobotTrajectory &init_guess_multi_robot,
     MultiRobotTrajectory &solution_multi_robot,
     const std::vector<int> &times);

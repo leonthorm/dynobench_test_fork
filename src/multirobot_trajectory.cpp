@@ -5,15 +5,12 @@
 
 void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
-    const dynobench::Trajectory &traj,
-    MultiRobotTrajectory &init_guess_multi_robot,
+    const dynobench::Trajectory &traj, // solution for the cluster
     MultiRobotTrajectory &solution_multi_robot,
     const std::vector<int> &times) {
 
-  MultiRobotTrajectory multi_robot_traj;
-
-  std::vector<int> nxs = init_guess_multi_robot.get_nxs();
-  std::vector<int> nus = init_guess_multi_robot.get_nus();
+  std::vector<int> nxs = solution_multi_robot.get_nxs(); // set already
+  std::vector<int> nus = solution_multi_robot.get_nus();
 
   DYNO_CHECK_EQ(nxs.size(), nus.size(), "");
   DYNO_CHECK_EQ(nxs.size(), times.size(), "");
@@ -52,9 +49,13 @@ void from_joint_to_indiv_trajectory_meta(
           traj_out.actions.push_back(
               traj.actions.at(k).segment(nus_accumulated.at(j), nus.at(i)));
       }
+      std::cout << "updating the solution for: " << i << std::endl;
+      std::cout << "states before: " << solution_multi_robot.trajectories.at(i).states.size() << std::endl;
       solution_multi_robot.trajectories.at(i).states.resize(traj_out.states.size());
       solution_multi_robot.trajectories.at(i).actions.resize(traj_out.actions.size());
       solution_multi_robot.trajectories.at(i) = traj_out;
+      std::cout << "states after: " << solution_multi_robot.trajectories.at(i).states.size() << std::endl;
+
       ++j; // keep track for cluster
     }
   }
