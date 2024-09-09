@@ -6,7 +6,6 @@
 #include <fcl/geometry/shape/capsule.h>
 #include <fcl/geometry/shape/sphere.h>
 
-
 namespace dynobench {
 
 void DintegratorCables_params::read_from_yaml(YAML::Node &node) {
