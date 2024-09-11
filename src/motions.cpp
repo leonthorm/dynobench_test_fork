@@ -28,6 +28,7 @@
 #include "fcl/broadphase/default_broadphase_callbacks.h"
 #include "fcl/geometry/shape/box.h"
 #include "fcl/geometry/shape/sphere.h"
+#include "fcl/geometry/shape/ellipsoid.h"
 
 #include "dynobench/motions.hpp"
 #include <boost/archive/binary_iarchive.hpp>
@@ -744,6 +745,14 @@ void load_env(Model_robot &robot, const Problem &problem) {
           center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
       co->computeAABB();
       robot.obstacles.push_back(co);
+    } else if (obs_type == "ellipsoid") {
+      std::shared_ptr<fcl::CollisionGeometryd> geom;
+      geom.reset(new fcl::Ellipsoidd(size(0), size(1), size(2)));
+      auto co = new fcl::CollisionObjectd(geom);
+      co->setTranslation(fcl::Vector3d(
+          center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
+      co->computeAABB();
+      robot.obstacles.push_back(co);
     } else if (obs_type == "octomap") {
       OcTree *octTree = new OcTree(obs.octomap_file);
       fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
@@ -788,6 +797,14 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
           center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
       co->computeAABB();
       robot.obstacles.push_back(co);
+    } else if (obs_type == "ellipsoid") {
+      std::shared_ptr<fcl::CollisionGeometryd> geom;
+      geom.reset(new fcl::Ellipsoidd(size(0), size(1), size(2)));
+      auto co = new fcl::CollisionObjectd(geom);
+      co->setTranslation(fcl::Vector3d(
+          center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
+      co->computeAABB();
+      robot.obstacles.push_back(co);
     } else if (obs_type == "octomap") {
       OcTree *octTree = new OcTree(obs.octomap_file);
       fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
@@ -825,6 +842,14 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
       } else if (obs_type == "sphere") {
         std::shared_ptr<fcl::CollisionGeometryd> geom;
         geom.reset(new fcl::Sphered(size(0)));
+        auto co = new fcl::CollisionObjectd(geom);
+        co->setTranslation(fcl::Vector3d(
+            center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
+        co->computeAABB();
+        _obs.push_back(co);
+      } else if (obs_type == "ellipsoid") {
+        std::shared_ptr<fcl::CollisionGeometryd> geom;
+        geom.reset(new fcl::Ellipsoidd(size(0), size(1), size(2)));
         auto co = new fcl::CollisionObjectd(geom);
         co->setTranslation(fcl::Vector3d(
             center(0), center(1), center.size() == 3 ? center(2) : ref_pos));

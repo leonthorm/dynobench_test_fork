@@ -1,0 +1,3 @@
+dynamics: "integrator2_3d"
+shape: "ellipsoid" # for the optimization part only
+# use default parameters
