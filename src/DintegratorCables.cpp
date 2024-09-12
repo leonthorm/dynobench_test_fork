@@ -106,16 +106,16 @@ DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
   collision_geometries.emplace_back(
       std::make_shared<fcl::Sphered>(params.col_size_robot));
 
-  // collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
-  //     rate_box_size*params.l1, params.col_size_payload,
-  //     params.col_size_payload));
+  collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
+      rate_box_size*params.l1, params.col_size_payload,
+      params.col_size_payload));
 
-  // collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
-  //     rate_box_size*params.l2, params.col_size_payload,
-  //     params.col_size_payload));
+  collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
+      rate_box_size*params.l2, params.col_size_payload,
+      params.col_size_payload));
 
-  ts_data.resize(2);
-  col_outs.resize(2);
+  ts_data.resize(4);
+  col_outs.resize(4);
 
   for (auto &c : collision_geometries) {
     // collision_objects.emplace_back(std::make_unique<fcl::CollisionObjectd>(c));
@@ -151,24 +151,24 @@ void DintegratorCables::transformation_collision_geometries(
   result_r2.translate(Eigen::Vector3d(robot2(0), robot2(1), 0.0));
   ts.at(1) = result_r2;
 
-  // // cable 1 and 2
-  // Eigen::Vector2d cable1;
-  // fcl::Transform3d result_c1 = fcl::Transform3d::Identity();
-  // double th1;
-  // get_cable1_center_pos(x, cable1);
-  // get_th1(x, th1);
-  // result_c1.translate(Eigen::Vector3d(cable1(0), cable1(1),0.0));
-  // result_c1.rotate(Eigen::AngleAxisd(th1, Eigen::Vector3d::UnitZ()));
-  // ts.at(3) = result_c1;
+  // cable 1 and 2
+  Eigen::Vector2d cable1;
+  fcl::Transform3d result_c1 = fcl::Transform3d::Identity();
+  double th1;
+  get_cable1_center_pos(x, cable1);
+  get_th1(x, th1);
+  result_c1.translate(Eigen::Vector3d(cable1(0), cable1(1),0.0));
+  result_c1.rotate(Eigen::AngleAxisd(th1, Eigen::Vector3d::UnitZ()));
+  ts.at(2) = result_c1;
 
-  // Eigen::Vector2d cable2;
-  // fcl::Transform3d result_c2 = fcl::Transform3d::Identity();;
-  // double th2;
-  // get_cable2_center_pos(x, cable2);
-  // get_th2(x, th2);
-  // result_c2.translate(Eigen::Vector3d(cable2(0), cable2(1), 0.0));
-  // result_c2.rotate(Eigen::AngleAxisd(th2, Eigen::Vector3d::UnitZ()));
-  // ts.at(4) = result_c2;
+  Eigen::Vector2d cable2;
+  fcl::Transform3d result_c2 = fcl::Transform3d::Identity();;
+  double th2;
+  get_cable2_center_pos(x, cable2);
+  get_th2(x, th2);
+  result_c2.translate(Eigen::Vector3d(cable2(0), cable2(1), 0.0));
+  result_c2.rotate(Eigen::AngleAxisd(th2, Eigen::Vector3d::UnitZ()));
+  ts.at(3) = result_c2;
 }
 
 void DintegratorCables::collision_distance(
