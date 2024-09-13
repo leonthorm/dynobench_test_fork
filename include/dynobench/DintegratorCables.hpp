@@ -165,16 +165,6 @@ struct DintegratorCables : Model_robot {
                          const Eigen::Ref<const Eigen::VectorXd> &x,
                          const Eigen::Ref<const Eigen::VectorXd> &u) override;
 
-  virtual void step(Eigen::Ref<Eigen::VectorXd> xnext,
-                    const Eigen::Ref<const Eigen::VectorXd> &x,
-                    const Eigen::Ref<const Eigen::VectorXd> &u,
-                    double dt) override;
-
-  virtual void stepDiff(Eigen::Ref<Eigen::MatrixXd> Fx,
-                        Eigen::Ref<Eigen::MatrixXd> Fu,
-                        const Eigen::Ref<const Eigen::VectorXd> &x,
-                        const Eigen::Ref<const Eigen::VectorXd> &u,
-                        double dt) override;
 
   // Collisions
   // This updates the position of the collisions shape(s) of the robot.
