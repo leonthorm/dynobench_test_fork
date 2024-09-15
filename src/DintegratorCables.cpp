@@ -98,8 +98,8 @@ DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
   double rate_box_size =
       0.35; // we use a shorter collision body for the
             // cables to avoid self collision against payload or robot!
-  // collision_geometries.emplace_back(
-  //       std::make_shared<fcl::Sphered>(params.col_size_payload));
+  collision_geometries.emplace_back(
+        std::make_shared<fcl::Sphered>(params.col_size_payload));
 
   collision_geometries.emplace_back(
       std::make_shared<fcl::Sphered>(params.col_size_robot));
@@ -107,16 +107,16 @@ DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
   collision_geometries.emplace_back(
       std::make_shared<fcl::Sphered>(params.col_size_robot));
 
-  // collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
-  //     rate_box_size*params.l1, params.col_size_payload,
-  //     params.col_size_payload));
+  collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
+      rate_box_size*params.l1, params.col_size_payload,
+      params.col_size_payload));
 
-  // collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
-  //     rate_box_size*params.l2, params.col_size_payload,
-  //     params.col_size_payload));
+  collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
+      rate_box_size*params.l2, params.col_size_payload,
+      params.col_size_payload));
 
-  ts_data.resize(2);
-  col_outs.resize(2);
+  ts_data.resize(5);
+  col_outs.resize(5);
 
   for (auto &c : collision_geometries) {
     // collision_objects.emplace_back(std::make_unique<fcl::CollisionObjectd>(c));
@@ -133,43 +133,43 @@ void DintegratorCables::transformation_collision_geometries(
   // payload, robot 1, robot 2 cable 1, cable 2
 
   // payload
-  // Eigen::Vector2d pos_p;
-  // fcl::Transform3d result_p = fcl::Transform3d::Identity();
-  // get_payload_pos(x, pos_p);
-  // result_p.translate(Eigen::Vector3d(pos_p(0), pos_p(1), 0.0));
-  // ts.at(0) = result_p;
+  Eigen::Vector2d pos_p;
+  fcl::Transform3d result_p = fcl::Transform3d::Identity();
+  get_payload_pos(x, pos_p);
+  result_p.translate(Eigen::Vector3d(pos_p(0), pos_p(1), 0.0));
+  ts.at(0) = result_p;
 
   // robot 1 and 2
   Eigen::Vector2d robot1;
   get_robot1_pos(x, robot1);
   fcl::Transform3d result_r1 = fcl::Transform3d::Identity();
   result_r1.translate(Eigen::Vector3d(robot1(0), robot1(1), 0.0));
-  ts.at(0) = result_r1;
+  ts.at(1) = result_r1;
 
   Eigen::Vector2d robot2;
   get_robot2_pos(x, robot2);
   fcl::Transform3d result_r2 = fcl::Transform3d::Identity();
   result_r2.translate(Eigen::Vector3d(robot2(0), robot2(1), 0.0));
-  ts.at(1) = result_r2;
+  ts.at(2) = result_r2;
 
   // // cable 1 and 2
-  // Eigen::Vector2d cable1;
-  // fcl::Transform3d result_c1 = fcl::Transform3d::Identity();
-  // double th1;
-  // get_cable1_center_pos(x, cable1);
-  // get_th1(x, th1);
-  // result_c1.translate(Eigen::Vector3d(cable1(0), cable1(1),0.0));
-  // result_c1.rotate(Eigen::AngleAxisd(th1, Eigen::Vector3d::UnitZ()));
-  // ts.at(3) = result_c1;
+  Eigen::Vector2d cable1;
+  fcl::Transform3d result_c1 = fcl::Transform3d::Identity();
+  double th1;
+  get_cable1_center_pos(x, cable1);
+  get_th1(x, th1);
+  result_c1.translate(Eigen::Vector3d(cable1(0), cable1(1),0.0));
+  result_c1.rotate(Eigen::AngleAxisd(th1, Eigen::Vector3d::UnitZ()));
+  ts.at(3) = result_c1;
 
-  // Eigen::Vector2d cable2;
-  // fcl::Transform3d result_c2 = fcl::Transform3d::Identity();;
-  // double th2;
-  // get_cable2_center_pos(x, cable2);
-  // get_th2(x, th2);
-  // result_c2.translate(Eigen::Vector3d(cable2(0), cable2(1), 0.0));
-  // result_c2.rotate(Eigen::AngleAxisd(th2, Eigen::Vector3d::UnitZ()));
-  // ts.at(4) = result_c2;
+  Eigen::Vector2d cable2;
+  fcl::Transform3d result_c2 = fcl::Transform3d::Identity();;
+  double th2;
+  get_cable2_center_pos(x, cable2);
+  get_th2(x, th2);
+  result_c2.translate(Eigen::Vector3d(cable2(0), cable2(1), 0.0));
+  result_c2.rotate(Eigen::AngleAxisd(th2, Eigen::Vector3d::UnitZ()));
+  ts.at(4) = result_c2;
 }
 
 void DintegratorCables::collision_distance(
