@@ -137,16 +137,16 @@ double check_cols(std::shared_ptr<Model_robot> model_robot,
 // } // namespace boost
 
 struct Feasibility_thresholds {
-  double traj_tol = 1e2;
-  double goal_tol = 1e2;
-  double col_tol = 1e2;
-  double x_bound_tol = 1e3;
-  double u_bound_tol = 1e2;
-  // double traj_tol = 1e-2;
-  // double goal_tol = 1e-2;
-  // double col_tol = 1e-2;
-  // double x_bound_tol = 1e-2;
-  // double u_bound_tol = 1e-2;
+  // double traj_tol = 1e2;
+  // double goal_tol = 1e2;
+  // double col_tol = 1e2;
+  // double x_bound_tol = 1e3;
+  // double u_bound_tol = 1e2;
+  double traj_tol = 1e-2;
+  double goal_tol = 1e-2;
+  double col_tol = 1e-2;
+  double x_bound_tol = 1e-2;
+  double u_bound_tol = 1e-2;
 
   void __load_data(void *source, bool boost, bool write = false,
                    const std::string &be = "") {
