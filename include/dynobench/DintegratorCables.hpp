@@ -165,7 +165,6 @@ struct DintegratorCables : Model_robot {
                          const Eigen::Ref<const Eigen::VectorXd> &x,
                          const Eigen::Ref<const Eigen::VectorXd> &u) override;
 
-
   // Collisions
   // This updates the position of the collisions shape(s) of the robot.
   // The collision distance/check  is implemented  in the base class.

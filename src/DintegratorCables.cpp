@@ -36,7 +36,8 @@ void DintegratorCables_params::read_from_yaml(const char *file) {
 DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
                                      const Eigen::VectorXd &p_lb,
                                      const Eigen::VectorXd &p_ub)
-    : Model_robot(std::make_shared<RnSOn>(6,2,std::vector<size_t>{2,3}),4), params(params) {
+    : Model_robot(std::make_shared<RnSOn>(6, 2, std::vector<size_t>{2, 3}), 4),
+      params(params) {
 
   // description of state and control
   x_desc = {
@@ -282,6 +283,5 @@ void DintegratorCables::calcDiffV(Eigen::Ref<Eigen::MatrixXd> Jv_x,
   };
   apply_fun(calcJ_DintegratorCables);
 }
-
 
 } // namespace dynobench
