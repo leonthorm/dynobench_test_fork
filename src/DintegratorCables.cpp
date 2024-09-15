@@ -99,7 +99,7 @@ DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
       0.35; // we use a shorter collision body for the
             // cables to avoid self collision against payload or robot!
   collision_geometries.emplace_back(
-        std::make_shared<fcl::Sphered>(params.col_size_payload));
+      std::make_shared<fcl::Sphered>(params.col_size_payload));
 
   collision_geometries.emplace_back(
       std::make_shared<fcl::Sphered>(params.col_size_robot));
@@ -108,11 +108,11 @@ DintegratorCables::DintegratorCables(const DintegratorCables_params &params,
       std::make_shared<fcl::Sphered>(params.col_size_robot));
 
   collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
-      rate_box_size*params.l1, params.col_size_payload,
+      rate_box_size * params.l1, params.col_size_payload,
       params.col_size_payload));
 
   collision_geometries.emplace_back(std::make_shared<fcl::Boxd>(
-      rate_box_size*params.l2, params.col_size_payload,
+      rate_box_size * params.l2, params.col_size_payload,
       params.col_size_payload));
 
   ts_data.resize(5);
@@ -158,12 +158,13 @@ void DintegratorCables::transformation_collision_geometries(
   double th1;
   get_cable1_center_pos(x, cable1);
   get_th1(x, th1);
-  result_c1.translate(Eigen::Vector3d(cable1(0), cable1(1),0.0));
+  result_c1.translate(Eigen::Vector3d(cable1(0), cable1(1), 0.0));
   result_c1.rotate(Eigen::AngleAxisd(th1, Eigen::Vector3d::UnitZ()));
   ts.at(3) = result_c1;
 
   Eigen::Vector2d cable2;
-  fcl::Transform3d result_c2 = fcl::Transform3d::Identity();;
+  fcl::Transform3d result_c2 = fcl::Transform3d::Identity();
+  ;
   double th2;
   get_cable2_center_pos(x, cable2);
   get_th2(x, th2);
