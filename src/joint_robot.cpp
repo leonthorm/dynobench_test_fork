@@ -133,6 +133,7 @@ Joint_robot::Joint_robot(
     k_xw += size_xw;
   }
   part_objs_.clear();
+  rf_part_objs_.clear();
   for (size_t i = 0; i < collision_geometries.size(); i++) {
     auto robot_part = new fcl::CollisionObject(collision_geometries[i]);
     part_objs_.push_back(robot_part);
@@ -271,6 +272,7 @@ void Joint_robot::__collision_distance(
     assert(collision_geometries.size() == col_outs.size());
     robot_objs_.clear();
     col_mng_robots_->clear();
+    rf_robot_objs_.clear();
     for (size_t i = 0; i < ts_data.size(); i++) {
       fcl::Transform3d &transform = ts_data[i];
       auto robot_co = part_objs_[i];
@@ -293,7 +295,7 @@ void Joint_robot::__collision_distance(
 
     if (check_parts) {
       if(residual_force){
-        rf_robot_objs_.clear();
+        // rf_robot_objs_.clear();
         for (size_t i = 0; i < ts_data.size(); i++) {
           fcl::Transform3d &transform = ts_data[i];
           auto rf_robot_co = rf_part_objs_[i];
