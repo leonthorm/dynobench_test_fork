@@ -327,12 +327,18 @@ bool Model_robot::collision_check(const Eigen::Ref<const Eigen::VectorXd> &x) {
 
 void Model_robot::collision_distance_time(
     const Eigen::Ref<const Eigen::VectorXd> &x, size_t time,
-    CollisionOut &cout) {
+    CollisionOut &cout, bool hard_constrained_collision) {
 
-  auto &_env = time_varying_env.at(time);
-  assert(_env);
-
-  return __collision_distance(x, cout, _env);
+  if(hard_constrained_collision){
+    auto &_env = time_varying_env_soft.at(time);
+    assert(_env);
+    return __collision_distance(x, cout, _env);
+  }
+  else {
+    auto &_env = time_varying_env.at(time);
+    assert(_env);
+    return __collision_distance(x, cout, _env);
+  }
 }
 
 void Model_robot::__collision_distance(
@@ -421,21 +427,22 @@ void Model_robot::collision_distance_diff(
 
 void Model_robot::collision_distance_time_diff(
     Eigen::Ref<Eigen::VectorXd> dd, double &f,
-    const Eigen::Ref<const Eigen::VectorXd> &x, size_t time_index) {
+    const Eigen::Ref<const Eigen::VectorXd> &x, size_t time_index, 
+    bool hard_constrained_collision) {
   // compute collision at current point
 
   CollisionOut c;
   assert(nx_col > 0);
   assert(nx_col <= static_cast<size_t>(x.size()));
 
-  collision_distance_time(x, time_index, c);
+  collision_distance_time(x, time_index, c, hard_constrained_collision);
   f = c.distance;
 
   double eps = 1e-4; // TODO: evaluate which are valid values here!
 
   finite_diff_grad(
       [&](auto &y) {
-        collision_distance_time(y.head(nx_col), time_index, c);
+        collision_distance_time(y.head(nx_col), time_index, c, hard_constrained_collision);
         return c.distance;
       },
       x.head(nx_col), dd.head(nx_col), eps);

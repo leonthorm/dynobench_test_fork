@@ -28,6 +28,7 @@
 #include "fcl/broadphase/default_broadphase_callbacks.h"
 #include "fcl/geometry/shape/box.h"
 #include "fcl/geometry/shape/sphere.h"
+#include "fcl/geometry/shape/ellipsoid.h"
 
 #include "dynobench/motions.hpp"
 #include <boost/archive/binary_iarchive.hpp>
@@ -723,6 +724,14 @@ void load_env(Model_robot &robot, const Problem &problem) {
           center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
       co->computeAABB();
       robot.obstacles.push_back(co);
+    } else if (obs_type == "ellipsoid") {
+      std::shared_ptr<fcl::CollisionGeometryd> geom;
+      geom.reset(new fcl::Ellipsoidd(size(0), size(1), size(2)));
+      auto co = new fcl::CollisionObjectd(geom);
+      co->setTranslation(fcl::Vector3d(
+          center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
+      co->computeAABB();
+      robot.obstacles.push_back(co);
     } else if (obs_type == "octomap") {
       OcTree *octTree = new OcTree(obs.octomap_file);
       fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
@@ -787,6 +796,8 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
   for (const auto &obstacles : problem.time_varying_obstacles) {
 
     std::vector<fcl::CollisionObjectd *> _obs;
+    std::vector<fcl::CollisionObjectd *> _obs_soft;
+
     for (const auto &obs : obstacles) {
       auto &obs_type = obs.type;
       auto &size = obs.size;
@@ -809,6 +820,16 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
             center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
         co->computeAABB();
         _obs.push_back(co);
+      // moving neighbors are assumed to have ellipsoid shape
+      } else if (obs_type == "ellipsoid") {
+        std::shared_ptr<fcl::CollisionGeometryd> geom;
+        geom.reset(new fcl::Ellipsoidd(size(0), size(1), size(2)));
+        auto co = new fcl::CollisionObjectd(geom);
+        co->setTranslation(fcl::Vector3d(
+            center(0), center(1), center.size() == 3 ? center(2) : ref_pos));
+        co->computeAABB();
+        _obs_soft.push_back(co);
+
       } else if (obs_type == "octomap") {
         OcTree *octTree = new OcTree(obs.octomap_file);
         fcl::OcTree<double> *fcl_tree = new fcl::OcTree<double>(
@@ -823,11 +844,15 @@ void load_time_varying_env(Model_robot &robot, const Problem &problem) {
     }
     robot.time_varying_obstacles.push_back(_obs);
     auto env = std::make_shared<fcl::DynamicAABBTreeCollisionManagerd>();
-    // new fcl::DynamicAABBTreeCollisionManagerd();
-    // robot.env.reset(new fcl::DynamicAABBTreeCollisionManagerd());
     env->registerObjects(robot.time_varying_obstacles.back());
     env->setup();
     robot.time_varying_env.push_back(env);
+    // for the soft constrained obstacles
+    robot.time_varying_obstacles_soft.push_back(_obs_soft);
+    auto env_soft = std::make_shared<fcl::DynamicAABBTreeCollisionManagerd>();
+    env_soft->registerObjects(robot.time_varying_obstacles_soft.back());
+    env_soft->setup();
+    robot.time_varying_env_soft.push_back(env_soft);
   }
 }
 
