@@ -53,6 +53,8 @@ add_library(
   ./src/quadrotor_payload_dynamics_autogen_n2_p.cpp
   ./src/quadrotor_payload_dynamics_autogen_n3_p.cpp
   ./src/quadrotor_payload_dynamics_autogen_n4_p.cpp
+  ./src/DintegratorCables.cpp
+  ./src/DintegratorCables_dynamics.cpp
   ${SOURCE_n56})
 
 add_library(dynobench::dynobench ALIAS dynobench)
