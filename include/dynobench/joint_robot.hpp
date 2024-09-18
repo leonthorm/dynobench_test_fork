@@ -63,6 +63,12 @@ struct Joint_robot : Model_robot {
   virtual void __collision_distance(
       const Eigen::Ref<const Eigen::VectorXd> &x, CollisionOut &cout,
       std::shared_ptr<fcl::BroadPhaseCollisionManagerd> env) override;
+  
+  // for soft constrained collision checking robot-moving obstacles
+  virtual void __collision_distance_soft(
+      const Eigen::Ref<const Eigen::VectorXd> &x, CollisionOut &cout,
+      std::shared_ptr<fcl::BroadPhaseCollisionManagerd> env) override;
+
 
   virtual void transformation_collision_geometries(
       const Eigen::Ref<const Eigen::VectorXd> &x,

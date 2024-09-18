@@ -330,14 +330,14 @@ void Model_robot::collision_distance_time(
     CollisionOut &cout, bool hard_constrained_collision) {
 
   if(hard_constrained_collision){
-    auto &_env = time_varying_env_soft.at(time);
+    auto &_env = time_varying_env.at(time);
     assert(_env);
     return __collision_distance(x, cout, _env);
   }
   else {
-    auto &_env = time_varying_env.at(time);
+    auto &_env = time_varying_env_soft.at(time);
     assert(_env);
-    return __collision_distance(x, cout, _env);
+    return __collision_distance_soft(x, cout, _env);
   }
 }
 
@@ -400,6 +400,13 @@ void Model_robot::__collision_distance(
 
 void Model_robot::collision_distance(const Eigen::Ref<const Eigen::VectorXd> &x,
                                      CollisionOut &cout) {
+  return __collision_distance(x, cout, env);
+}
+
+// for soft constrained collision checking
+void Model_robot::__collision_distance_soft(const Eigen::Ref<const Eigen::VectorXd> &x,
+                                     CollisionOut &cout, 
+                                     std::shared_ptr<fcl::BroadPhaseCollisionManagerd> env) {
   return __collision_distance(x, cout, env);
 }
 

@@ -322,4 +322,53 @@ void Joint_robot::__collision_distance(
     cout.distance = max__;
   }
 }
+// need ellipsoid shape for this robot-moving obstacles collision checking
+void Joint_robot::__collision_distance_soft(
+    const Eigen::Ref<const Eigen::VectorXd> &x, CollisionOut &cout,
+    std::shared_ptr<fcl::BroadPhaseCollisionManagerd> _env) {
+  double min_dist = std::numeric_limits<double>::max();
+  bool check_parts = true;
+  if (_env) {
+    transformation_collision_geometries(x, ts_data);
+    DYNO_CHECK_EQ(collision_geometries.size(), ts_data.size(), AT);
+    assert(collision_geometries.size() == ts_data.size());
+    DYNO_CHECK_EQ(collision_geometries.size(), col_outs.size(), AT);
+    assert(collision_geometries.size() == col_outs.size());
+    // robot_objs_.clear();
+    col_mng_robots_->clear();
+    rf_robot_objs_.clear();
+    for (size_t i = 0; i < ts_data.size(); i++) {
+      fcl::Transform3d &transform = ts_data[i];
+      auto robot_co = rf_part_objs_[i];
+      robot_co->setTranslation(transform.translation());
+      robot_co->setRotation(transform.rotation());
+      robot_co->computeAABB();
+      rf_robot_objs_.push_back(robot_co);
+    }
+    // part/environment checking also with ellipsoid shape
+    for (size_t i = 0; i < ts_data.size(); i++) {
+      auto robot_co = rf_robot_objs_[i];
+      fcl::DefaultDistanceData<double> distance_data;
+      distance_data.request.enable_signed_distance = true;
+      _env->distance(robot_co, &distance_data,
+                     fcl::DefaultDistanceFunction<double>);
+      min_dist = std::min(min_dist, distance_data.result.min_distance);
+    }
+
+    if (check_parts) {
+      col_mng_robots_->registerObjects(rf_robot_objs_);
+      fcl::DefaultDistanceData<double> inter_robot_distance_data;
+      inter_robot_distance_data.request.enable_signed_distance = true;
+
+      col_mng_robots_->distance(&inter_robot_distance_data,
+                                fcl::DefaultDistanceFunction<double>);
+      min_dist =
+          std::min(min_dist, inter_robot_distance_data.result.min_distance);
+    }
+    cout.distance = min_dist;
+  } else {
+    std::cout << "no _env in collision_distance, max" << std::endl;
+    cout.distance = max__;
+  }
+}
 }; // namespace dynobench

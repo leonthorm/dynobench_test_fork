@@ -701,6 +701,10 @@ struct Model_robot {
     const Eigen::Ref<const Eigen::VectorXd> &x, CollisionOut &cout,
     std::shared_ptr<fcl::BroadPhaseCollisionManagerd> env);
 
+  // soft constrained collision checking for drones
+  virtual void __collision_distance_soft(
+    const Eigen::Ref<const Eigen::VectorXd> &x, CollisionOut &cout,
+    std::shared_ptr<fcl::BroadPhaseCollisionManagerd> env);
 
   virtual void
   collision_distance_time(const Eigen::Ref<const Eigen::VectorXd> &x,
