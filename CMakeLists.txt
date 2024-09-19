@@ -44,6 +44,7 @@ add_library(
   ./src/planar_rotor_pole.cpp
   ./src/car2.cpp
   ./src/integrator2_2d.cpp
+  ./src/integrator2_2d_coupled.cpp
   ./src/joint_robot.cpp
   ./src/integrator1_2d.cpp
   ./src/integrator2_3d.cpp
