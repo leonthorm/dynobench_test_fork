@@ -20,7 +20,7 @@ add_subdirectory(deps/json)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
-set(COMPILE_N56 false)
+set(COMPILE_N56 true)
 if(COMPILE_N56)
   set(SOURCE_n56 ./src/quadrotor_payload_dynamics_autogen_n6_p.cpp
                  ./src/quadrotor_payload_dynamics_autogen_n5_p.cpp)
