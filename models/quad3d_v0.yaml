@@ -11,5 +11,5 @@ arm_length: 0.046
 t2t: 0.006 # thrust-to-torque ratio
 J_v: [16.571710e-6, 16.655602e-6, 29.261652e-6] # inertia matrix
 dt: .01
-size: [.15]
+size: [.1]
 dynamics: quad3d
