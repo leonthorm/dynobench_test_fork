@@ -48,6 +48,7 @@ add_library(
   ./src/joint_robot.cpp
   ./src/integrator1_2d.cpp
   ./src/integrator2_3d.cpp
+  ./src/integrator2_3d_coupled.cpp
   ./src/quadrotor_payload.cpp
   ./src/quadrotor_payload_n.cpp
   ./src/quadrotor_payload_n.cpp

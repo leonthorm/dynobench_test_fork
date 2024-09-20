@@ -43,6 +43,8 @@
 // #define dynobench_models "../dynoplan/dynobench/models/"
 #include "dynobench/integrator1_2d.hpp"
 #include "dynobench/integrator2_3d.hpp"
+#include "dynobench/integrator2_3d_coupled.hpp"
+
 
 namespace dynobench {
 
@@ -86,6 +88,8 @@ std::unique_ptr<Model_robot> robot_factory(const char *file,
     return std::make_unique<Integrator1_2d>(file, p_lb, p_ub);
   } else if (dynamics == "integrator2_3d") {
     return std::make_unique<Integrator2_3d>(file, p_lb, p_ub);
+  } else if (dynamics == "integrator2_3d_coupled") {
+    return std::make_unique<Integrator2_3d_coupled>(file, p_lb, p_ub);
   } else if (dynamics == "quad3dpayload") {
     return std::make_unique<Model_quad3dpayload>(file, p_lb, p_ub);
   } else if (dynamics == "quad3dpayload_point") {
