@@ -52,6 +52,7 @@ Integrator2_3d_coupled::Integrator2_3d_coupled(const Integrator2_3d_coupled_para
                                const Eigen::VectorXd &p_ub)
     : Model_robot(std::make_shared<Rn>(12), 6), params(params) {
 
+  
   // description of state and control
   x_desc = {"x1[m]", "y1[m]", "z1[m]", "vx1[m/s]", "vy1[m/s]", "vz1[m/s]", "x2[m]", "y2[m]", "z2[m]", "vx2[m/s]", "vy2[m/s]", "vz2[m/s]"};
   u_desc = {"ax1[m/s^2]", "ay1[m/s^2]", "az1[m/s^2]","ax2[m/s^2]", "ay2[m/s^2]", "az2[m/s^2]"};
@@ -59,8 +60,8 @@ Integrator2_3d_coupled::Integrator2_3d_coupled(const Integrator2_3d_coupled_para
   is_2d = false;
   ts_data.resize(2);
   col_outs.resize(2);
-  nx_col = 6;
-  nx_pr = 6;
+  nx_col = 12;
+  nx_pr = 12;
   translation_invariance = 3;
 
   distance_weights = params.distance_weights; // necessary for ompl wrapper
@@ -83,13 +84,14 @@ Integrator2_3d_coupled::Integrator2_3d_coupled(const Integrator2_3d_coupled_para
   }
 
   // collisions
-  if (params.shape == "box") {
-    collision_geometries.push_back(
-        std::make_shared<fcl::Boxd>(params.size(0), params.size(1), 1.0));
-  } else if (params.shape == "sphere") {
+  if (params.shape == "sphere") {
     collision_geometries.push_back(
         std::make_shared<fcl::Sphered>(params.radius));
+    collision_geometries.push_back(
+            std::make_shared<fcl::Sphered>(params.radius));
   } else if (params.shape == "ellipsoid") {
+    collision_geometries.push_back(
+        std::make_shared<fcl::Ellipsoidd>(params.radii));
     collision_geometries.push_back(
         std::make_shared<fcl::Ellipsoidd>(params.radii));
   } else {
@@ -101,6 +103,9 @@ Integrator2_3d_coupled::Integrator2_3d_coupled(const Integrator2_3d_coupled_para
     auto robot_part = new fcl::CollisionObject(collision_geometries[i]);
     part_objs_.push_back(robot_part);
   }
+
+  col_mng_robots_ = std::make_shared<fcl::DynamicAABBTreeCollisionManagerd>();
+  col_mng_robots_->setup();
 }
 
 Integrator2_3d_coupled::~Integrator2_3d_coupled()
@@ -217,9 +222,9 @@ void Integrator2_3d_coupled::calcDiffV(Eigen::Ref<Eigen::MatrixXd> Jv_x,
     Jv_x(0, 3) = 1;
     Jv_x(1, 4) = 1;
     Jv_x(2, 5) = 1;
-    Jv_x(6, 10) = 1;
-    Jv_x(7, 11) = 1;
-    Jv_x(8, 12) = 1;
+    Jv_x(6, 9) = 1;
+    Jv_x(7, 10) = 1;
+    Jv_x(8, 11) = 1;
 
     Jv_u(3, 0) = 1;
     Jv_u(4, 1) = 1;
@@ -235,6 +240,7 @@ void Integrator2_3d_coupled::calcDiffV(Eigen::Ref<Eigen::MatrixXd> Jv_x,
 void Integrator2_3d_coupled::transformation_collision_geometries(
     const Eigen::Ref<const Eigen::VectorXd> &x, std::vector<Transform3d> &ts) {
 
+  std::cout << "x.size: " << x.size() << std::endl;
   assert(x.size() == 12);
   assert(ts.size() == 2); 
 
@@ -253,6 +259,7 @@ void Integrator2_3d_coupled::collision_distance(const Eigen::Ref<const Eigen::Ve
   double min_dist = std::numeric_limits<double>::max();
   bool check_parts = true;
   if (env) {
+    std::cout << "x.size: " << x.size() << std::endl;
     transformation_collision_geometries(x, ts_data);
     DYNO_CHECK_EQ(collision_geometries.size(), ts_data.size(), AT);
     assert(collision_geometries.size() == ts_data.size());
