@@ -7,6 +7,8 @@ project(
   VERSION 0.1.0
   LANGUAGES CXX)
 
+enable_language(C)
+enable_language(CXX)
 # find_package(pinocchio REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options serialization
                                        stacktrace_basic)
@@ -19,6 +21,10 @@ add_subdirectory(deps/json)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
+
+# Set the C standard to C11
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(COMPILE_N56 false)
 if(COMPILE_N56)
@@ -56,6 +62,7 @@ add_library(
   ./src/quadrotor_payload_dynamics_autogen_n3_p.cpp
   ./src/quadrotor_payload_dynamics_autogen_n4_p.cpp
   ./src/multirobot_trajectory.cpp
+  ./src/nn.c
   ${SOURCE_n56})
 
 add_library(dynobench::dynobench ALIAS dynobench)

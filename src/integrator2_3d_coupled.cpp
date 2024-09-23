@@ -16,6 +16,7 @@
 #include <regex>
 #include <type_traits>
 #include <yaml-cpp/node/node.h>
+#include "dynobench/nn.h"
 
 namespace dynobench {
 
@@ -166,14 +167,27 @@ void Integrator2_3d_coupled::calcV(Eigen::Ref<Eigen::VectorXd> v,
                            const Eigen::Ref<const Eigen::VectorXd> &x,
                            const Eigen::Ref<const Eigen::VectorXd> &u) {
 
-  auto p1 = x.head<3>();
-  auto p2 = x.segment<3>(6);
-  double dist = (p1-p2).norm();
-  double alpha = 1;
-  Eigen::Vector3d a_repulsive = alpha / ( dist * dist) * (p2 - p1) / dist;
-  std::cout << "dist: " << dist << std::endl;
-  if(!finite_diff)
-    a_repulsive.setZero();
+  Eigen::Vector3d a_repulsive;
+  a_repulsive.setZero();
+  // double alpha = 1;
+  // auto p1 = x.head<3>();
+  // auto p2 = x.segment<3>(6);
+  // float dist = (p1-p2).norm();
+  // a_repulsive = alpha / ( dist * dist) * (p2 - p1) / dist;
+  auto dist = x.head<6>() - x.segment<6>(6);
+  float input[6] = {static_cast<float>(dist(0)), 
+                    static_cast<float>(dist(1)), 
+                    static_cast<float>(dist(2)), 
+                    static_cast<float>(dist(3)), 
+                    static_cast<float>(dist(4)), 
+                    static_cast<float>(dist(5))};
+  if(dist(0) < 0.2 && dist(1) < 0.2 && dist(2) < 1.5){ // only for x, y, z
+    std::cout << "running nn to get fa" << std::endl;
+    nn_add_neighbor(input, NN_ROBOT_SMALL);
+    const float* rhoOutput = nn_eval(NN_ROBOT_SMALL); // in gramms
+    a_repulsive(2) = rhoOutput[0] / 1000 * 9.81; // in Newtons
+    std::cout << "a_repulsive: " << a_repulsive.format(dynobench::FMT) << std::endl;
+  }
 
   v(0) = x(3);
   v(1) = x(4);
@@ -240,7 +254,6 @@ void Integrator2_3d_coupled::calcDiffV(Eigen::Ref<Eigen::MatrixXd> Jv_x,
 void Integrator2_3d_coupled::transformation_collision_geometries(
     const Eigen::Ref<const Eigen::VectorXd> &x, std::vector<Transform3d> &ts) {
 
-  std::cout << "x.size: " << x.size() << std::endl;
   assert(x.size() == 12);
   assert(ts.size() == 2); 
 
@@ -253,13 +266,12 @@ void Integrator2_3d_coupled::transformation_collision_geometries(
   ts.at(0) = result;
   ts.at(1) = result2;
 
-  }
+}
 void Integrator2_3d_coupled::collision_distance(const Eigen::Ref<const Eigen::VectorXd> &x,
                                      CollisionOut &cout) {
   double min_dist = std::numeric_limits<double>::max();
   bool check_parts = true;
   if (env) {
-    std::cout << "x.size: " << x.size() << std::endl;
     transformation_collision_geometries(x, ts_data);
     DYNO_CHECK_EQ(collision_geometries.size(), ts_data.size(), AT);
     assert(collision_geometries.size() == ts_data.size());
