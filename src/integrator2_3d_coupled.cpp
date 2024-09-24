@@ -181,8 +181,9 @@ void Integrator2_3d_coupled::calcV(Eigen::Ref<Eigen::VectorXd> v,
                     static_cast<float>(dist(3)), 
                     static_cast<float>(dist(4)), 
                     static_cast<float>(dist(5))};
-  if(dist(0) < 0.2 && dist(1) < 0.2 && dist(2) < 1.5){ // only for x, y, z
+  if(abs(dist(0)) < 0.2 && abs(dist(1)) < 0.2 && abs(dist(2)) < 1.5){ // only for x, y, z
     std::cout << "running nn to get fa" << std::endl;
+    std::cout << "dist: " << dist.format(dynobench::FMT) << std::endl;
     nn_add_neighbor(input, NN_ROBOT_SMALL);
     const float* rhoOutput = nn_eval(NN_ROBOT_SMALL); // in gramms
     a_repulsive(2) = rhoOutput[0] / 1000 * 9.81; // in Newtons
@@ -199,9 +200,9 @@ void Integrator2_3d_coupled::calcV(Eigen::Ref<Eigen::VectorXd> v,
   v(6) = x(9);
   v(7) = x(10);
   v(8) = x(11);
-  v(9) = u(3) - a_repulsive(0);
-  v(10) = u(4) - a_repulsive(1);
-  v(11) = u(5) - a_repulsive(2);
+  v(9) = u(3) + a_repulsive(0);
+  v(10) = u(4) + a_repulsive(1);
+  v(11) = u(5) + a_repulsive(2);
 }
 
 // DYNAMICS
