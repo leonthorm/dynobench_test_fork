@@ -234,9 +234,7 @@ Model_quad3dpayload_n::Model_quad3dpayload_n(
   u_weight.setConstant(.5);
 
   // DO we need weight on the state? @KHALED??
-  x_weightb = 50 * Vxd::Ones(nx);
-  x_weightb(2) = 50;
-  // x_weightb.head(7) = Eigen::VectorXd::Zero(7);
+  x_weightb = 200 * Vxd::Ones(nx);
 
   // COLLISIONS
 
@@ -289,10 +287,13 @@ Model_quad3dpayload_n::Model_quad3dpayload_n(
   state_ref = Vxd::Zero(nx);
 
   state_weights.segment(6, 3).setConstant(0.1);
-  state_weights.segment(6 + 6, 3).setConstant(0.1);
-
-  state_ref(6 + 2) = -.9;
-  state_ref(6 + 6 + 2) = -.9;
+  for(size_t i=0; i<params.num_robots;++i) {
+    state_weights.segment(6 + 6*i, 3).setConstant(0.1);
+     state_ref(6 + 6*i + 2) = -.9;
+    // state_ref(6 + 6 + 2) = -.9;
+  }
+  // state_ref(6 + 2) = -.9;
+  // state_ref(6 + 6 + 2) = -.9;
 
   k_acc = 1.;
 }
