@@ -56,6 +56,7 @@ add_library(
   ./src/integrator2_3d.cpp
   ./src/integrator2_3d_coupled.cpp
   ./src/integrator2_3d_joint.cpp
+  ./src/integrator2_3d_res.cpp
   ./src/quadrotor_payload.cpp
   ./src/quadrotor_payload_n.cpp
   ./src/quadrotor_payload_n.cpp

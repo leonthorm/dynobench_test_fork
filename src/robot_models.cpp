@@ -39,12 +39,11 @@
 #include "dynobench/quadrotor_payload_n.hpp"
 #include "dynobench/unicycle1.hpp"
 #include "dynobench/unicycle2.hpp"
-
-// #define dynobench_models "../dynoplan/dynobench/models/"
 #include "dynobench/integrator1_2d.hpp"
 #include "dynobench/integrator2_3d.hpp"
 #include "dynobench/integrator2_3d_coupled.hpp"
 #include "dynobench/integrator2_3d_joint.hpp"
+#include "dynobench/integrator2_3d_res.hpp"
 
 namespace dynobench {
 
@@ -87,7 +86,9 @@ std::unique_ptr<Model_robot> robot_factory(const char *file,
   } else if (dynamics == "integrator1_2d") {
     return std::make_unique<Integrator1_2d>(file, p_lb, p_ub);
   } else if (dynamics == "integrator2_3d") {
-    return std::make_unique<Integrator2_3d>(file, p_lb, p_ub);
+    return std::make_unique<Integrator2_3d>(file, p_lb, p_ub); // use for the conservative residual force
+  } else if (dynamics == "integrator2_3d_res") {
+    return std::make_unique<Integrator2_3d_res>(file, p_lb, p_ub);
   } else if (dynamics == "integrator2_3d_coupled") {
     // return std::make_unique<Integrator2_3d_coupled>(file, p_lb, p_ub);
     return std::make_unique<Integrator2_3d_joint>(file, p_lb, p_ub);

@@ -192,7 +192,8 @@ void Integrator2_3d_joint::calcV(Eigen::Ref<Eigen::VectorXd> v,
   x_next_tmp = x_tmp + x_dot_tmp * ref_dt;
   // get the f_res_next
   f_res_next.setZero();
-  auto dist = x_next_tmp.head<6>() - x_next_tmp.tail<6>();
+  // auto dist = x_next_tmp.head<6>() - x_next_tmp.tail<6>();
+  auto dist = x_next_tmp.head<6>() - x_next_tmp.segment<6>(7);
   float input[6] = {static_cast<float>(dist(0)), 
                     static_cast<float>(dist(1)), 
                     static_cast<float>(dist(2)), 

@@ -6,12 +6,15 @@
 void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
     const dynobench::Trajectory &traj, // solution for the cluster
-    MultiRobotTrajectory &solution_multi_robot,
-    const std::vector<int> &times) {
+    MultiRobotTrajectory &solution_multi_robot, // output, initialized with parallel_opt
+    const std::vector<int> &times,
+    bool residual_force) {
 
   std::vector<int> nxs = solution_multi_robot.get_nxs(); // set already
   std::vector<int> nus = solution_multi_robot.get_nus();
-
+  // if(residual_force){ // assumes all robots have f added to the state
+  //   std::transform(nxs.begin(), nxs.end(), nxs.begin(), [](int x) { return x - 1; });
+  // }
   DYNO_CHECK_EQ(nxs.size(), nus.size(), "");
   DYNO_CHECK_EQ(nxs.size(), times.size(), "");
 
@@ -32,6 +35,8 @@ void from_joint_to_indiv_trajectory_meta(
       else{
         nxs_accumulated.at(j) = nxs_accumulated.at(j - 1) + nxs.at(id);
         nus_accumulated.at(j) = nus_accumulated.at(j - 1) + nus.at(id);
+        if(residual_force)
+          nxs_accumulated.at(j) += 1; // shift for the force
         id = i;
         ++j;
       }
