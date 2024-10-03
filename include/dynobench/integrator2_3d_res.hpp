@@ -38,7 +38,7 @@ struct Integrator2_3d_res_params {
   double max_acc = 2.0;
   double min_acc = -2.0;
   double min_f = -0.0981; // Newton 
-  double max_f = 0;
+  double max_f = 0.0981; // Newton
   std::string filename = "";
   std::string shape = "sphere";
   double radius = 0.05;
