@@ -178,7 +178,7 @@ void Integrator2_3d_joint::calcV(Eigen::Ref<Eigen::VectorXd> v,
   v(9) = x(12);
   v(10) = u(3); 
   v(11) = u(4);
-  v(12) = u(5) + x(6);
+  v(12) = u(5) + x(13);
   v(13) = 0; // will be changes with f_res_next
 
   // for the f_res_next
@@ -192,22 +192,37 @@ void Integrator2_3d_joint::calcV(Eigen::Ref<Eigen::VectorXd> v,
   x_next_tmp = x_tmp + x_dot_tmp * ref_dt;
   // get the f_res_next
   f_res_next.setZero();
-  // auto dist = x_next_tmp.head<6>() - x_next_tmp.tail<6>();
-  auto dist = x_next_tmp.head<6>() - x_next_tmp.segment<6>(7);
-  float input[6] = {static_cast<float>(dist(0)), 
+  f_res_next2.setZero();
+
+  auto dist = x_next_tmp.head<6>() - x_next_tmp.tail<6>(); // only pos, vel
+  if(abs(dist(0)) < 0.2 && abs(dist(1)) < 0.2 && abs(dist(2)) < 1.5){
+    float input[6] = {static_cast<float>(dist(0)), 
                     static_cast<float>(dist(1)), 
                     static_cast<float>(dist(2)), 
                     static_cast<float>(dist(3)), 
                     static_cast<float>(dist(4)), 
                     static_cast<float>(dist(5))};
-
-  nn_add_neighbor(input, NN_ROBOT_SMALL);
-  const float* rhoOutput = nn_eval(NN_ROBOT_SMALL); // in gramms
-  f_res_next(2) = rhoOutput[0] / 1000 * 9.81; // in Newtons
-
-  // update v with f_res_next
+    nn_reset();
+    nn_add_neighbor(input, NN_ROBOT_SMALL);
+    const float* rhoOutput = nn_eval(NN_ROBOT_SMALL); // in gramms
+    f_res_next(2) = rhoOutput[0] / 1000 * 9.81; // in Newtons
+  }
   v(6) = (f_res_next(2) - x(6)) / ref_dt;
-  v(13) = (f_res_next(2) - x(13)) / ref_dt;
+  // second robot
+  auto dist2 = x_next_tmp.tail<6>() - x_next_tmp.head<6>(); // only pos, vel
+  if(abs(dist2(0)) < 0.2 && abs(dist2(1)) < 0.2 && abs(dist2(2)) < 1.5){
+    float input2[6] = {static_cast<float>(dist2(0)), 
+                    static_cast<float>(dist2(1)), 
+                    static_cast<float>(dist2(2)), 
+                    static_cast<float>(dist2(3)), 
+                    static_cast<float>(dist2(4)), 
+                    static_cast<float>(dist2(5))};
+    nn_reset();
+    nn_add_neighbor(input2, NN_ROBOT_SMALL);
+    const float* rhoOutput2 = nn_eval(NN_ROBOT_SMALL); // in gramms
+    f_res_next2(2) = rhoOutput2[0] / 1000 * 9.81; // in Newtons
+  }
+  v(13) = (f_res_next2(2) - x(13)) / ref_dt;
 }
 
 // DYNAMICS

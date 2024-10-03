@@ -177,24 +177,24 @@ void Joint_robot::calcV(Eigen::Ref<Eigen::VectorXd> v,
     // get x_next = x + v*dt
     std::vector<Eigen::VectorXd> ind_x; // x
     from_joint_to_ind(x, ind_x);
+
     std::vector<Eigen::VectorXd> ind_v; // x_dot/v, updates
-    from_joint_to_ind(x, ind_v);
+    from_joint_to_ind(v, ind_v);
+    
     size_t i = 0;
     k_v = 0, k_x = 0;
     for (auto &robot : v_jointRobot) {
       size_nx = robot->nx;
-      size_v = size_nx;
-      float fa_next = calcFa(/*idx*/i, ind_x, ind_v, ref_dt); // only last element needs to be updated with NN
+      fa_next = calcFaNext(/*idx*/i, ind_x, ind_v, ref_dt); // only last element needs to be updated with NN
       // update the last element of v
-      if(fa_next < 0){
-        Eigen::VectorXd segment = v.segment(k_v, size_nx);
-        double fa = x.segment(k_x, size_nx)(size_nx - 1); // last element of the state - f
-        segment(segment.size() - 1) = (fa_next - fa)/ref_dt;
-        v.segment(k_v, size_nx) = segment; // update the x_dot to return
-      }
+      Eigen::VectorXd segment = v.segment(k_v, size_nx);
+      float fa = x.segment(k_x, size_nx)(size_nx - 1); // last element of the state - f
+      segment(segment.size() - 1) = (fa_next - fa) / ref_dt;
+      std::cout << segment.format(dynobench::FMT) << std::endl;
+      v.segment(k_v, size_nx) = segment; // update the x_dot to return
       k_v += size_nx;
       k_x += size_nx;
-      ++i;
+      ++i; // keep track of robots
     }
   }
 }
@@ -422,7 +422,7 @@ void Joint_robot::__collision_distance_soft(
   }
 }
 // for the residuals. It assumes integrator2_3d with (x,y,z,vx,vy,vz)
-float Joint_robot::calcFa(size_t idx, std::vector<Eigen::VectorXd> &x_all, std::vector<Eigen::VectorXd> &v_all, double dt){
+float Joint_robot::calcFaNext(size_t idx, std::vector<Eigen::VectorXd> &x_all, std::vector<Eigen::VectorXd> &v_all, double dt){
   float rho = 0;
   Eigen::VectorXd x_next = x_all.at(idx) + v_all.at(idx)*dt;
   for(size_t j = 0; j < x_all.size(); j++){
@@ -436,6 +436,7 @@ float Joint_robot::calcFa(size_t idx, std::vector<Eigen::VectorXd> &x_all, std::
                           static_cast<float>(dist(3)), 
                           static_cast<float>(dist(4)), 
                           static_cast<float>(dist(5))};
+        nn_reset();
         nn_add_neighbor(input, NN_ROBOT_SMALL);
         const float* rhoOutput = nn_eval(NN_ROBOT_SMALL); // in gramms
         rho += rhoOutput[0] / 1000 * 9.81; // in Newtons

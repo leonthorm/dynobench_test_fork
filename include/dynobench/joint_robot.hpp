@@ -26,7 +26,7 @@ struct Joint_robot : Model_robot {
   bool residual_force = true; // when residual force is taken into account, and inter-robot collision with ellipsoid shape
   bool conservative = false; // when no NN for the residual estimation
   Eigen::Vector3d radii = Eigen::Vector3d(.12, .12, .3); // from tro paper
-
+  float fa_next;
   std::vector<int> nxs;
 
   std::shared_ptr<fcl::BroadPhaseCollisionManagerd> col_mng_robots_;
@@ -78,7 +78,7 @@ struct Joint_robot : Model_robot {
   std::vector<size_t> so2_indices;
   std::vector<std::shared_ptr<Model_robot>> v_jointRobot;
 
-  float calcFa(size_t idx, std::vector<Eigen::VectorXd> &x_all, std::vector<Eigen::VectorXd> &v_all, double dt);
+  float calcFaNext(size_t idx, std::vector<Eigen::VectorXd> &x_all, std::vector<Eigen::VectorXd> &v_all, double dt);
   void from_joint_to_ind(const Eigen::VectorXd &x, std::vector<Eigen::VectorXd>& y);
 };
 } // namespace dynobench

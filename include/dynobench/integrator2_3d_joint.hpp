@@ -41,7 +41,7 @@ struct Integrator2_3d_joint_params {
   double max_f = 0;
   std::string filename = "";
   std::string shape = "sphere";
-  double radius = 0.1;
+  double radius = 0.05;
   Eigen::Vector2d distance_weights = Eigen::Vector2d(1, .5);
   Eigen::Vector3d radii = Eigen::Vector3d(.12, .12, .3); // from tro paper
   
@@ -61,6 +61,7 @@ struct Integrator2_3d_joint : public Model_robot {
   std::shared_ptr<fcl::BroadPhaseCollisionManagerd> col_mng_robots_;
   bool finite_diff = true; // true 
   Eigen::Vector3d f_res_next;
+  Eigen::Vector3d f_res_next2;
 
   Integrator2_3d_joint(const Integrator2_3d_joint_params &params = Integrator2_3d_joint_params(),
                  const Eigen::VectorXd &p_lb = Eigen::VectorXd(),
