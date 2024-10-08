@@ -278,6 +278,5 @@ void from_joint_to_indiv_trajectory_meta(
     const std::unordered_set<size_t> &cluster,
     const dynobench::Trajectory &traj,
     MultiRobotTrajectory &solution_multi_robot,
-    std::vector<std::vector<float>>& residual_forces,
     const std::vector<int> &times,
     bool residual_force = false);
