@@ -20,7 +20,7 @@ namespace dynobench {
 
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Differential_drive_params, max_vel, min_vel,
                                      max_angular_vel, min_angular_vel);
-        
+
 
         void read_from_yaml(YAML::Node &node);
         void read_from_yaml(const char *file);
@@ -108,4 +108,4 @@ namespace dynobench {
         }
     };
 }
-    
+

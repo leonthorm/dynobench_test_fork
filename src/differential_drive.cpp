@@ -22,11 +22,11 @@ namespace dynobench {
         set_from_yaml(node, VAR_WITH_NAME(r));
         set_from_yaml(node, VAR_WITH_NAME(L));
     }
-    
+
 
     Model_differential_drive::Model_differential_drive(const Differential_drive_params &params,
                                  const Eigen::VectorXd &p_lb,
-                                 const Eigen::VectorXd &p_ub) 
+                                 const Eigen::VectorXd &p_ub)
         : Model_robot(std::make_shared<RnSOn>(2, 1, std::vector<size_t>{2}), 2), params(params) {
 
         double RM_low__ = -std::sqrt(std::numeric_limits<double>::max());
@@ -137,7 +137,7 @@ namespace dynobench {
 
         Jv_x(0, 2) = -s * params.r * 0.5 * (u[0] + u[1]);
         Jv_x(1, 2) = c * params.r * 0.5 * (u[0] + u[1]);
-        
+
         Jv_u(0, 0) = c * params.r * 0.5;
         Jv_u(0, 1) = c * params.r * 0.5;
         Jv_u(1, 0) = s * params.r * 0.5;
@@ -182,4 +182,4 @@ namespace dynobench {
                     so2_distance(x(2), y(2)) / max_angular_vel_abs);
     }
 
-}   
+}
