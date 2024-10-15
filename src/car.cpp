@@ -1,6 +1,6 @@
 #include "dynobench/car.hpp"
 #include <fcl/geometry/shape/box.h>
-
+// just a test
 namespace dynobench {
 
 std::vector<size_t> inline create_vector_so2_for_car(size_t num_trailers) {
